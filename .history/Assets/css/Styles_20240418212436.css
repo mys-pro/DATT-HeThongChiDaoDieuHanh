@@ -1,0 +1,42 @@
+:root {
+    --primary-color: #021B79;
+}
+
+.app {
+    background-color: var(--primary-color);
+}
+
+.bg-gradient {
+    background-image: linear-gradient(to right, rgba(255,255,255,0), rgba(255, 255, 255, 0.3)) !important;
+}
+
+.header__navbar-img {
+    width: 40px;
+    height: 40px;
+}
+
+.header__navbar-name h6:first-child {
+    font-size: 16px;
+}
+
+.header__navbar-name h6:last-child {
+    font-size: 14px;
+}
+
+.header__navbar-avatar {
+    width: 36px;
+    height: 36px;
+}
+
+.header__navbar-item:not(.header__navbar-item:last-child) button:hover{
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.header__navbar-item:not(.header__navbar-item:last-child) button:active {
+    background-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.header__navbar-item span {
+    top: 25%;
+    right: -15px;
+}

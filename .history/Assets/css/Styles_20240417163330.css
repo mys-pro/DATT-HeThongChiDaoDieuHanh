@@ -1,0 +1,8 @@
+:root {
+    --primary-color: #1488CC;
+    --primary-gradient: linear-gradient(to right, #2B32B2, #1488CC);
+}
+
+.header__navbar {
+    background-image: radial-gradient(circle, #2B32B2 50%, #1488CC 50%);
+}

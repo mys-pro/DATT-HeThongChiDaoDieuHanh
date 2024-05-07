@@ -1,0 +1,25 @@
+:root {
+    --primary-color: #363795;
+}
+
+.header__navbar {
+    background-color: var(--primary-color);
+}
+
+.header__navbar-img {
+    width: 32px;
+    height: 32px;
+}
+
+.header__navbar-name h6:first-child {
+    font-size: 16px;
+}
+
+.header__navbar-name h6:last-child {
+    font-size: 12px;
+}
+
+.header__navbar-avatar {
+    width: 32px;
+    height: 32px;
+}

@@ -1,0 +1,4 @@
+<?
+class PDFController extends BaseController{
+    
+}
