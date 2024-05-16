@@ -418,6 +418,12 @@
                 }
             })
 
+            $('#InputPassword1').keypress(function(event) {
+                if (event.which === 13) {
+                    $('.btn-submit').click();
+                }
+            });
+
             $('#add-task-submit').click(function() {
                 console.log($('#add-task-name').val());
             });

@@ -469,7 +469,6 @@
     }
 
     #add-task-modal .modal-content {
-        min-width: 100% !important;
-        max-height: 100% !important;
+        width: 100vw !important;
     }
 }

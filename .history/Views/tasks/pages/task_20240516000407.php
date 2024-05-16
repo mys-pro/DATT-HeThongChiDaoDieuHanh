@@ -75,7 +75,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <label for="add-task-name" class="mb-1">Tên công việc <span class="text-danger">*</span></label>
+                    <label class="mb-1">Tên công việc <span class="text-danger">*</span></label>
                     <textarea class="textarea-task task-name form-control rounded-0 mb-2" id="add-task-name" placeholder="Nhập tên công việc" rows="1"></textarea>
                 </div>
                 <div class="modal-footer">
@@ -417,10 +417,6 @@
                     $(this).val(Number($(this).attr("max")));
                 }
             })
-
-            $('#add-task-submit').click(function() {
-                console.log($('#add-task-name').val());
-            });
         })
     </script>
 </div>

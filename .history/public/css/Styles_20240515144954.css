@@ -283,29 +283,24 @@
 
 #add-task-modal .modal-content {
     min-width: 600px !important;
-    max-height: 90vh;
+    max-height: 90vh !important;
 }
 
-#add-task-modal .modal-body {
-    padding-right: 8px;
-    overflow-y: scroll;
-}
-
-#add-task-modal .modal-body::-webkit-scrollbar {
+#add-task-modal .modal-content::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
 
-#add-task-modal .modal-body::-webkit-scrollbar-track {
+#add-task-modal .modal-content::-webkit-scrollbar-track {
     background: transparent;
 }
 
-#add-task-modal .modal-body::-webkit-scrollbar-thumb {
+#add-task-modal .modal-content::-webkit-scrollbar-thumb {
     background: transparent;
     border-radius: 10px;
 }
 
-#add-task-modal .modal-body:hover::-webkit-scrollbar-thumb {
+#add-task-modal .modal-content:hover::-webkit-scrollbar-thumb {
     background-color: rgba(0, 0, 0, 0.2);
 }
 
@@ -469,7 +464,6 @@
     }
 
     #add-task-modal .modal-content {
-        min-width: 100% !important;
-        max-height: 100% !important;
+        width: 100vw !important;
     }
 }

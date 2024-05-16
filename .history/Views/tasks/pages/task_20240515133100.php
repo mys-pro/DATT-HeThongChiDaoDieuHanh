@@ -67,25 +67,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="add-task-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="add-task-modal__label" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="add-task-modal__label">Thêm công việc</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <label for="add-task-name" class="mb-1">Tên công việc <span class="text-danger">*</span></label>
-                    <textarea class="textarea-task task-name form-control rounded-0 mb-2" id="add-task-name" placeholder="Nhập tên công việc" rows="1"></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="add-task-submit">Xác nhận</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- <div class="modal fade" id="add-task-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal fade" id="add-task-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
             <div class="modal-content">
                 <div class="modal-header">
@@ -138,11 +120,11 @@
                     <div class="Description mb-2">
                         <button id="Description-btn" class="border-0 bg-transparent text-primary"><i class="bi bi-text-left me-2"></i>Mô tả</button>
                         <div class="d-none">
-                            <textarea class="textarea-task form-control mt-2" id="Description-add-task" rows="1"></textarea>
+                            <textarea class="textarea-task form-control mt-2" id="Description-content" rows="1"></textarea>
                         </div>
                     </div>
 
-                    <label class="fw-semibold ms-1 mb-1"><i class="bi bi-person-fill me-2 text-secondary"></i>Người thực hiện <span class="text-danger">*</span></label>
+                    <label class="fw-semibold ms-1 mb-1"><i class="bi bi-person-fill me-2 text-secondary"></i>Người thực hiện</label>
                     <div class="d-md-flex align-items-center justify-content-between mb-2">
                         <select name="" id="TaskPerformers" class="border-0">
                             <option value="null" data-title="Chọn người thực hiện" data-icon="bi-person-fill" disabled selected hidden>Chọn người thực hiện</option>
@@ -164,7 +146,7 @@
                         </div>
                     </div>
 
-                    <label class="fw-semibold ms-1 mb-1"><i class="bi bi-person-fill-check me-2 text-secondary"></i>Người thẩm định <span class="text-danger">*</span></label>
+                    <label class="fw-semibold ms-1 mb-1"><i class="bi bi-person-fill-check me-2 text-secondary"></i>Người thẩm định</label>
                     <div class="d-md-flex align-items-center justify-content-between mb-2">
                         <select name="" id="TaskReview" class="border-0">
                             <option value="null" data-title="Chọn người thẩm định" data-icon="bi-person-fill-check" disabled selected hidden>Chọn người thẩm định</option>
@@ -172,9 +154,9 @@
                                 <optgroup label="<?= $department["DepartmentName"] ?>">
                                     <?php foreach ($data["userList"] as $user) : ?>
                                         <?php if ($user["DepartmentID"] == $department["DepartmentID"]) : ?>
-                                            <?php foreach ($data['role'] as $role) : ?>
-                                                <?php if ($role['RoleID'] == 5 && $role["UserID"] ==  $user["UserID"]) : ?>
-                                                    <option value="<?= $user["UserID"] ?>" data-title="<?= $user["FullName"] ?>" data-role="<?= $user["PositionName"] ?>" data-company="<?= $user["DepartmentName"]  ?>" data-avatar="data:image/jpeg;base64,<?= base64_encode($user["Avatar"]) ?>"><?= $user["FullName"] ?></option>
+                                            <?php foreach($data['role'] as $role): ?>
+                                                <?php if($role['RoleID'] == 5): ?>
+                                                <option value="<?= $user["UserID"] ?>" data-title="<?= $user["FullName"] ?>" data-role="<?= $user["PositionName"] ?>" data-company="<?= $user["DepartmentName"]  ?>" data-avatar="data:image/jpeg;base64,<?= base64_encode($user["Avatar"]) ?>"><?= $user["FullName"] ?></option>
                                                 <?php endif; ?>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
@@ -198,7 +180,7 @@
                 </div>
             </div>
         </div>
-    </div> -->
+    </div>
 
     <script>
         $(document).ready(function() {
@@ -290,13 +272,8 @@
                 $('.Description > div').toggleClass('d-none');
             });
 
-            let descriptionEditor;
-
             ClassicEditor
-                .create(document.querySelector('#Description-add-task'))
-                .then(editor => {
-                    descriptionEditor = editor;
-                })
+                .create(document.querySelector('#Description-content'))
                 .catch(error => {
                     console.error(error);
                 });
@@ -311,35 +288,29 @@
                 autoResize();
             }
 
-            var textarea = $('.task-name');
+            var textarea = $('#task-name');
             resizeTextArea(textarea);
 
             function matchCustom(params, data) {
                 if ($.trim(params.term) === '') {
                     return data;
                 }
-                var searchTerm = params.term.toUpperCase();
                 if (data.children) {
                     var match = false;
-                    var filteredChildren = [];
                     $.each(data.children, function(i, child) {
-                        if (child.text.toUpperCase().indexOf(searchTerm) > -1) {
-                            filteredChildren.push(child);
+                        if (child.text.toUpperCase().indexOf(params.term.toUpperCase()) > -1) {
                             match = true;
                         }
                     });
                     if (match) {
-                        var filteredGroup = $.extend({}, data, true);
-                        filteredGroup.children = filteredChildren;
-                        return filteredGroup;
+                        return data;
                     }
                 }
-                if (data.text.toUpperCase().indexOf(searchTerm) > -1) {
+                if (data.text.toUpperCase().indexOf(params.term.toUpperCase()) > -1) {
                     return data;
                 }
                 return null;
             }
-
 
             function formatState(state) {
                 if (!state.id) {
@@ -418,9 +389,13 @@
                 }
             })
 
-            $('#add-task-submit').click(function() {
-                console.log($('#add-task-name').val());
-            });
+            $('#save-task-btn').click(function() {
+                $('#toast-notify').addClass("text-bg-warning");
+                $('#toast-notify .toast-body').html(
+                    '<i class="bi bi-exclamation-triangle me-2"></i> Thất bại'
+                );
+                bootstrap.Toast.getOrCreateInstance('#toast-notify').show();
+            })
         })
     </script>
 </div>

@@ -204,7 +204,6 @@ class TaskController extends BaseController
                 'taskList' => $taskList,
                 'departmentList' => $this->taskModel->getAll('departments'),
                 'userList' => $this->userModel->userAll(),
-                'role' => $this->userModel->getAll("Permissions"),
             ],
         ]);
     }

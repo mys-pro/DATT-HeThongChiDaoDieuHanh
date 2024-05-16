@@ -18,12 +18,10 @@ if (!isset($_SESSION["UserInfo"])) {
     <link rel="stylesheet" href="<?= getWebRoot() ?>/library/bootstrap/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css?v=<?= time() ?>">
     <link rel="stylesheet" href="<?= getWebRoot() ?>/library/bootstrap/bootstrap-5.3.3-dist/css/bootstrap.min.css?v=<?= time() ?>">
     <link rel="stylesheet" href="<?= getWebRoot() ?>/public/css/select2.min.css?v=<?= time() ?>">
-    <link rel="stylesheet" href="<?= getWebRoot() ?>/public/css/select2-bootstrap-5-theme.min.css?v=<?= time() ?>">
     <link rel="stylesheet" href="<?= getWebRoot() ?>/public/css/Styles.css?v=<?= time() ?>">
-
-    <script src="<?= getWebRoot() ?>/public/js/jquery-3.7.1.min.js?v=<?= time() ?>"></script>
     <script src="<?= getWebRoot() ?>/public/js/flatpickr.js?v=<?= time() ?>"></script>
     <script src="<?= getWebRoot() ?>/library/ckeditor5-build-classic/ckeditor.js?v=<?= time() ?>"></script>
+    <script src="<?= getWebRoot() ?>/public/js/jquery-3.7.1.min.js?v=<?= time() ?>"></script>
     <script src="<?= getWebRoot() ?>/public/js/select2.min.js?v=<?= time() ?>"></script>
     <script src="<?= getWebRoot() ?>/public/js/chart-4.4.1.min.js?v=<?= time() ?>"></script>
     <script src="<?= getWebRoot() ?>/library/bootstrap/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js?v=<?= time() ?>"></script>

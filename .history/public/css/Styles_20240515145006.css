@@ -283,12 +283,7 @@
 
 #add-task-modal .modal-content {
     min-width: 600px !important;
-    max-height: 90vh;
-}
-
-#add-task-modal .modal-body {
-    padding-right: 8px;
-    overflow-y: scroll;
+    max-height: 90vh !important;
 }
 
 #add-task-modal .modal-body::-webkit-scrollbar {
@@ -469,7 +464,6 @@
     }
 
     #add-task-modal .modal-content {
-        min-width: 100% !important;
-        max-height: 100% !important;
+        width: 100vw !important;
     }
 }

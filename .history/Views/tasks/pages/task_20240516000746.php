@@ -418,6 +418,12 @@
                 }
             })
 
+            $('#add-task-name').keypress(function(event) {
+                if (event.which === 13) {
+                    $('#add-task-submit').click();
+                }
+            });
+
             $('#add-task-submit').click(function() {
                 console.log($('#add-task-name').val());
             });

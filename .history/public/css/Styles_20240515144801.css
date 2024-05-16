@@ -19,7 +19,7 @@
     width: 100%;
     min-height: 100vh;
     background-image: linear-gradient(to right, rgba(30, 59, 114, 0.9), rgba(30, 59, 114, 0.9)),
-        url('../Image/header-img.jpg');
+    url('../Image/header-img.jpg');
     background-position: top;
     background-size: 120vw;
     background-repeat: no-repeat;
@@ -67,7 +67,7 @@
     min-height: 100%;
 }
 
-.modal-loading__content>span {
+.modal-loading__content > span {
     color: #99A1B7;
     user-select: none;
 }
@@ -130,7 +130,6 @@
 .list-apps a:active {
     background-color: rgba(0, 0, 0, 0.1) !important;
 }
-
 /*============================================= Sidebar =============================================*/
 .sidebar {
     width: var(--sidebar-width) !important;
@@ -248,8 +247,7 @@
     height: 37px;
 }
 
-#btn-search,
-#btn-add-task {
+#btn-search, #btn-add-task {
     background-color: var(--primary-color) !important;
     border-color: var(--primary-color) !important;
 }
@@ -269,11 +267,11 @@
     min-height: calc(100vh - var(--top-navbar-height) - 56px);
 }
 
-.AssignedBy-info>span {
+.AssignedBy-info > span {
     font-size: 14px;
 }
 
-.progress-task>.progress {
+.progress-task > .progress {
     height: 12px;
 }
 
@@ -281,32 +279,9 @@
     min-width: 34px;
 }
 
-#add-task-modal .modal-content {
+#add-task-modal .modal-content{
     min-width: 600px !important;
-    max-height: 90vh;
-}
-
-#add-task-modal .modal-body {
-    padding-right: 8px;
-    overflow-y: scroll;
-}
-
-#add-task-modal .modal-body::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-#add-task-modal .modal-body::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-#add-task-modal .modal-body::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 10px;
-}
-
-#add-task-modal .modal-body:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
+    max-height: 80vh !important;
 }
 
 .textarea-task {
@@ -314,11 +289,11 @@
     resize: none;
 }
 
-.AssignedBy-name>p:first-child {
+.AssignedBy-name > p:first-child {
     font-size: 14px;
 }
 
-.AssignedBy-name>p:last-child {
+.AssignedBy-name > p:last-child {
     font-size: 12px;
 }
 
@@ -351,7 +326,6 @@
 #select2-TaskReview-container {
     min-height: 51px;
 }
-
 /*============================================= Date style =============================================*/
 .flatpickr-months .flatpickr-month {
     background-color: var(--primary-color) !important;
@@ -435,7 +409,7 @@
     .content {
         margin-top: var(--top-navbar-height);
     }
-
+    
     th {
         display: none;
     }
@@ -463,13 +437,12 @@
         align-items: center;
     }
 
-    .progress-task {
+    .progress-task{
         margin-left: 6px;
         flex: 1;
     }
 
     #add-task-modal .modal-content {
-        min-width: 100% !important;
-        max-height: 100% !important;
+        width: 100vw !important;
     }
 }

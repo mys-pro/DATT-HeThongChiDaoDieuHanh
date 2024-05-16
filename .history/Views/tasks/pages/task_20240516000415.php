@@ -417,10 +417,6 @@
                     $(this).val(Number($(this).attr("max")));
                 }
             })
-
-            $('#add-task-submit').click(function() {
-                console.log($('#add-task-name').val());
-            });
         })
     </script>
 </div>

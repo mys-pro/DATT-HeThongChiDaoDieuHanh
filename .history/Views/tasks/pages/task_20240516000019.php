@@ -75,11 +75,12 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <label for="add-task-name" class="mb-1">Tên công việc <span class="text-danger">*</span></label>
-                    <textarea class="textarea-task task-name form-control rounded-0 mb-2" id="add-task-name" placeholder="Nhập tên công việc" rows="1"></textarea>
+                    <label for="task-name" class="mb-1">Tên công việc <span class="text-danger">*</span></label>
+                    <textarea class="textarea-task form-control rounded-0 mb-2" id="task-name" placeholder="Nhập tên công việc" rows="1"></textarea>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="add-task-submit">Xác nhận</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Understood</button>
                 </div>
             </div>
         </div>
@@ -311,7 +312,7 @@
                 autoResize();
             }
 
-            var textarea = $('.task-name');
+            var textarea = $('#task-name');
             resizeTextArea(textarea);
 
             function matchCustom(params, data) {
@@ -418,9 +419,29 @@
                 }
             })
 
-            $('#add-task-submit').click(function() {
-                console.log($('#add-task-name').val());
-            });
+            $('#save-task-btn').click(function() {
+                if ($("#task-name").val().trim() === "" || $('#TaskPerformers').val() === null || $('#TaskReview').val() === null) {
+                    var color = "text-bg-warning";
+                    var message = '<i class="bi bi-exclamation-triangle me-2"></i> Vui lòng điền đầy đủ thông tin.';
+                    $('#toast-notify').addClass(color);
+                    $('#toast-notify .toast-body').html(message);
+                    bootstrap.Toast.getOrCreateInstance('#toast-notify').show();
+                } else {
+                    var taskName = $("#task-name").val().trim();
+                    var priority = $('#priority-dropdown-toggle').attr("data-value");
+                    var deadlineTask = Number($("#deadline-task").val());
+                    var AssignedBy = <?= $_SESSION['UserInfo'][0]['UserID'] ?>;
+                    const descriptionData = descriptionEditor.getData();
+                    var TaskPerformers = $('#TaskPerformers').val();
+                    var deadlineTaskPerformers = Number($("#deadline-TaskPerformers").val());
+                    var TaskReview = $('#TaskReview').val();
+                    var deadlineTaskReview = Number($("#deadline-TaskReview").val());
+                    var uploadFile = $('#uploadFile').val();
+
+                    console.log(uploadFile);
+
+                }
+            })
         })
     </script>
 </div>
