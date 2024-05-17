@@ -1,1 +1,0 @@
-<img src="<?= getWebRoot() ?>/Public/Image/404.jpg" alt="" width="100%" height="100%">

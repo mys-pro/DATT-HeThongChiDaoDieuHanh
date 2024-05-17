@@ -1,9 +1,0 @@
-:root {
-    --primary-color: #1488CC;
-    --primary-gradient: linear-gradient(to right, #2B32B2, #1488CC);
-}
-
-.header__navbar {
-    background-color: #2B32B2;
-    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
-}

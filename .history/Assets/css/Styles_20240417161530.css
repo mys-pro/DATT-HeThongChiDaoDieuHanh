@@ -1,7 +1,0 @@
-:root {
-    --primary-color: linear-gradient(to right, #004D95, #0079E9);
-}
-
-.header__navbar {
-    background-image: linear-gradient(to right, #004D95, #0079E9);
-}
