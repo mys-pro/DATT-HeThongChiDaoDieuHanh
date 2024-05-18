@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./Assets/Image/icon.png" />
+    <title>Hệ thống chỉ đạo điều hành</title>
+    <link rel="stylesheet" href="./Bootstrap/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./Bootstrap/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./Assets/css/Styles.css">
+</head>
+
+<body>
+    <div class="app bg-body-secondary vh-100">
+        <header class="header">
+            <nav class="header__navbar navbar">
+                <div class="container-fluid">
+                    <a class="btn-offcanvas rounded-circle text-white text-center align-content-center me-2"
+                        data-bs-toggle="offcanvas" href="#offcanvasExample" role="button"
+                        aria-controls="offcanvasExample">
+                        <i class="bi bi-list fs-5"></i>
+                    </a>
+
+                    <a href="#" class="header__navbar-logo navbar-brand p-0 d-flex me-auto">
+                        <img class="header__navbar-img" src="./Assets/Image/Logo.png" alt="" width="40px" height="40px">
+                        <div class="header__navbar-name mx-2 text-white align-content-center">
+                            <h6 class="fw-bold p-0 m-0">UBND HUYỆN CHÂU THÀNH</h6>
+                            <h6 class="fw-normal p-0 m-0">Hệ thống chỉ đạo điều hành</h6>
+                        </div>
+                    </a>
+
+                    <ul
+                        class="header__navbar-list-right list-inline p-0 m-0 d-flex align-items-center position-relative">
+                        <li class="header__navbar-item">
+                            <a class="rounded-circle d-inline-block w-100 h-100 text-white text-center align-content-center"
+                                href="#">
+                                <i class="bi bi-gear fs-5"></i>
+                            </a>
+                        </li>
+
+                        <li class="header__navbar-item ms-2">
+                            <a class="rounded-circle d-inline-block w-100 h-100 text-white text-center align-content-center"
+                                href="#" role="button" id="dropdown-apps">
+                                <i class="bi bi-grid-3x3-gap-fill fs-5"></i>
+                            </a>
+                        </li>
+                        <div class="list-apps bg-white rounded-3 position-absolute p-2 shadow-sm hide">
+                            <div class="row row-cols-3 g-2">
+                                <div class="col">
+                                    <a href="#"
+                                        class="text-decoration-none text-secondary d-flex flex-column align-items-center px-1 py-2 rounded-3">
+                                        <img src="./Assets/Image/task-icon.png" alt="" width="36px" height="36px">
+                                        Công việc
+                                    </a>
+                                </div>
+                                <div class="col">
+                                    <a href="#"
+                                        class="text-decoration-none text-secondary d-flex flex-column align-items-center px-1 py-2 rounded-3">
+                                        <img src="./Assets/Image/admin-icon.png" alt="" width="36px" height="36px">
+                                        Hệ thống
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <li class="header__navbar-item ms-2">
+                            <div
+                                class="header__navbar-avatar bg-success bg-gradient rounded-circle w-100 h-100 text-white text-center align-content-center">
+                                TN
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <div class="app__container">
+            <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample"
+                aria-labelledby="offcanvasExampleLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasExampleLabel">Offcanvas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <div>
+                        Some text as placeholder. In real life you can have the elements you have chosen. Like,
+                        text, images, lists, etc.
+                    </div>
+                    <div class="dropdown mt-3">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            Dropdown button
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Action</a></li>
+                            <li><a class="dropdown-item" href="#">Another action</a></li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./Assets/js/jquery-3.7.1.min.js"></script>
+    <script src="./Assets/js/chart-4.4.1.min.js"></script>
+    <script src="./Bootstrap/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./Assets/js/script.js"></script>
+</body>
+
+</html>
