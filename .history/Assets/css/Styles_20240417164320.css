@@ -1,0 +1,7 @@
+:root {
+    --primary-color: #363795;
+}
+
+.header__navbar {
+    background-color: var(--primary-color);
+}

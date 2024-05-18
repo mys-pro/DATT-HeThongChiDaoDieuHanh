@@ -1,0 +1,11 @@
+:root {
+    --primary-color: #363795;
+}
+
+.header__navbar {
+    background-color: var(--primary-color);
+}
+
+.header__navbar-logo {
+    width: 31px;
+}
