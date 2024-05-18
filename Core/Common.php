@@ -21,33 +21,38 @@ function getWebRoot()
 }
 
 const VIEW_FOLDER_NAME = 'Views';
-function view($viewPath, array $data = []) {
+function view($viewPath, array $data = [])
+{
     foreach ($data as $key => $value) {
         $$key = $value;
     }
-    require (VIEW_FOLDER_NAME . '/' . str_replace('.', '/', $viewPath) . '.php');
+    require(VIEW_FOLDER_NAME . '/' . str_replace('.', '/', $viewPath) . '.php');
 }
 
-function getActiveMenu($active, $name) {
-    if($active == $name) 
+function getActiveMenu($active, $name)
+{
+    if ($active == $name)
         echo "active";
 }
 
-function getDropdownList($active, $name) {
-    if($active == $name)  {
+function getDropdownList($active, $name)
+{
+    if ($active == $name) {
         echo "collapse";
     } else {
         echo "collapsed";
     }
 }
 
-function getDropdownItem($active, $name) {
-    if($active == $name)  {
+function getDropdownItem($active, $name)
+{
+    if ($active == $name) {
         echo "show";
     }
 }
 
-function sendMail($to, $subject, $body) {
+function sendMail($to, $subject, $body)
+{
     $mail = new PHPMailer();
     try {
         $mail->SMTPDebug = 0;
@@ -74,4 +79,23 @@ function sendMail($to, $subject, $body) {
         echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
         return false;
     }
+}
+
+function formatSizeUnits($bytes)
+{
+    if ($bytes >= 1073741824) {
+        $bytes = number_format($bytes / 1073741824, 2) . ' GB';
+    } elseif ($bytes >= 1048576) {
+        $bytes = number_format($bytes / 1048576, 2) . ' MB';
+    } elseif ($bytes >= 1024) {
+        $bytes = number_format($bytes / 1024, 2) . ' KB';
+    } elseif ($bytes > 1) {
+        $bytes = $bytes . ' bytes';
+    } elseif ($bytes == 1) {
+        $bytes = $bytes . ' byte';
+    } else {
+        $bytes = '0 bytes';
+    }
+
+    return $bytes;
 }

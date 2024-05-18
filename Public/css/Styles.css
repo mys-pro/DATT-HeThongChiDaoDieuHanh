@@ -369,6 +369,10 @@
     position: fixed;
 }
 
+.link-file {
+    cursor: pointer;
+}
+
 /*============================================= Date style =============================================*/
 .flatpickr-months .flatpickr-month {
     background-color: var(--primary-color) !important;

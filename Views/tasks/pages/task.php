@@ -1,7 +1,7 @@
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toast-notify" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
-            <div class="toast-body">
+            <div class="toast-body d-flex align-items-center text-break">
 
             </div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -186,7 +186,7 @@
                                 <i class="bi bi-paperclip me-2"></i>Đính kèm
                             </span>
                             <label for="add-file" class="btn btn-secondary py-1">Thêm</label>
-                            <input type="file" class="d-none" id="add-file">
+                            <input type="file" class="d-none" id="add-file" name="files[]" multiple>
                         </div>
 
                         <ul id="attachments-list" class="list-group list-group-flush">
@@ -234,13 +234,17 @@
                 var icon = '';
                 switch (type) {
                     case 'success': {
-                        icon = '<i class="bi bi-check-circle me-2"></i>';
+                        icon = '<i class="bi bi-check-lg me-2 fs-5"></i>';
                         break;
                     }
 
-                    case 'warning':
+                    case 'warning': {
+                        icon = '<i class="bi bi-exclamation-triangle me-2 fs-5"></i>';
+                        break;
+                    }
+
                     case 'danger': {
-                        icon = '<i class="bi bi-exclamation-triangle me-2"></i>';
+                        icon = '<i class="bi bi-x-circle me-2 fs-5"></i>';
                         break;
                     }
                 }
@@ -436,14 +440,94 @@
             }
 
             $('#add-file').change(function() {
-                var file = this.files[0];
-                var fileName = file.name;
-                var fileSize = formatFileSize(file.size);
+                var formData = new FormData();
+                var files = $(this)[0].files;
+
+                for (var i = 0; i < files.length; i++) {
+                    formData.append('files[]', files[i]);
+                }
+
+                formData.append('taskID', taskID);
+
+                $.ajax({
+                    url: '<?= getWebRoot() ?>/Task/uploadFile',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.type == "success") {
+                            showToast($("#toast-notify"), 'success', 'Tải lên thành công.');
+                            $("#attachments-list").html(response.documentList);
+                        } else if (response.type == 'fail') {
+                            showToast($("#toast-notify"), 'danger', 'Tải lên thất bại.');
+                        } else {
+                            showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                        }
+                    },
+                    error: function() {
+                        showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                    }
+                });
+                $(this).val("");
             });
 
             $('#attachments-list').on('click', '.remove-file-btn', function() {
-                var value = $(this).attr("data-value");
-                $('#attachments-list li[data-value="' + value + '"]').remove();
+                var documentID = $("#attachments-list").find(".link-file").attr('data-value');
+                $.ajax({
+                    url: '<?= getWebRoot() ?>/Task/removeFile',
+                    type: 'POST',
+                    data: {
+                        documentID: documentID,
+                        taskID: taskID
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.type == "success") {
+                            showToast($("#toast-notify"), 'success', 'Đã xóa tập tin.');
+                            $("#attachments-list").html(response.documentHtml);
+                        } else if (response.type == 'fail') {
+                            showToast($("#toast-notify"), 'danger', 'Xóa tập tin thất bại.');
+                        } else if (response.type == 'notFound') {
+                            showToast($("#toast-notify"), 'danger', 'Tập tin không tồn tại.');
+                        } else {
+                            showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                        }
+                    },
+
+                    error: function() {
+                        showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                    }
+                });
+            });
+
+            $('#attachments-list').on('click', '.link-file', function(e) {
+                var documentID = $(this).attr('data-value');
+                $.ajax({
+                    url: '<?= getWebRoot() ?>/Task/downloadFile',
+                    type: 'POST',
+                    data: {
+                        documentID: documentID
+                    },
+                    success: function(response) {
+                        if (response == "notFound") {
+                            showToast($("#toast-notify"), 'danger', 'Tập tin không tồn tại.');
+                        } else {
+                            var link = response.split(", ");
+                            var a = document.createElement('a');
+                            a.href = link[1];
+                            a.download = link[0];
+                            document.body.appendChild(a);
+                            a.click();
+                            $(a).remove();
+                        }
+                    },
+
+                    error: function() {
+                        showToast($("#toast-notify"), 'danger', 'Tập tin không tồn tại.');
+                    }
+                });
             });
 
             $('#TaskPerformers optgroup').each(function() {

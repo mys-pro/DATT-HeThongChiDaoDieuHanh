@@ -270,12 +270,12 @@ class TaskController extends BaseController
 
             $documentList = "";
             foreach ($document as $value) {
-                $documentList .= '<li class="list-group-item list-group-item-action border-0 d-flex align-items-center justify-content-between mb-2 rounded-3" data-value="'. $value["DocumentID"] .'">
+                $documentList .= '<li class="list-group-item list-group-item-action border-0 d-flex align-items-center justify-content-between mb-2 rounded-3">
                     <span class="file-name fw-medium">
-                        '. $value["FileName"] .' <br>
-                        <span class="text-secondary fw-normal">'. $value["FileSize"] .'</span>
+                        <span data-value="' . sha1($value["DocumentID"]) . '" class="link-file text-primary text-decoration-underline me-2">' . $value["FileName"] . '</span>
+                        <span class="text-secondary fw-normal">(' . $value["FileSize"] . ')</span>
                     </span>
-                    <button class="remove-file-btn btn btn-white border-0" data-value="'. $value["DocumentID"] .'"><i class="bi bi-x-lg"></i></button>
+                    <button class="remove-file-btn btn btn-white border-0"><i class="bi bi-x-lg"></i></button>
                 </li>';
             }
 
@@ -352,6 +352,128 @@ class TaskController extends BaseController
                 }
             } else {
                 echo "fail";
+            }
+            exit();
+        } else {
+            $this->view('errors.404');
+        }
+    }
+
+    public function uploadFile()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files']) && isset($_POST["taskID"])) {
+            $files = $_FILES['files'];
+            $uploadDirectory = 'uploads/';
+
+            if (!is_dir($uploadDirectory)) {
+                mkdir($uploadDirectory, 0755, true);
+            }
+
+            for ($i = 0; $i < count($files['name']); $i++) {
+                $originalFileName = pathinfo($files['name'][$i], PATHINFO_FILENAME);
+                $extension = pathinfo($files['name'][$i], PATHINFO_EXTENSION);
+                $fileName = $originalFileName . '_' . time() . '.' . $extension;
+                $filePath = $uploadDirectory . $fileName;
+
+                if (move_uploaded_file($files['tmp_name'][$i], $filePath)) {
+                    $fileSize = formatSizeUnits(filesize($filePath));
+                    $insert = $this->taskModel->insertData('Documents', ["NULL", "'{$_POST["taskID"]}'", "'{$files['name'][$i]}'", "'{$fileSize}'", "'{$filePath}'", "current_timestamp()"]);
+                    if ($insert) {
+                        $document = $this->taskModel->getDocumentByTaskID($_POST["taskID"]);
+
+                        $documentList = "";
+                        foreach ($document as $value) {
+                            $documentList .= '<li class="list-group-item list-group-item-action border-0 d-flex align-items-center justify-content-between mb-2 rounded-3">
+                                <span class="file-name fw-medium">
+                                    <span data-value="' . sha1($value["DocumentID"]) . '" class="link-file text-primary text-decoration-underline me-2">' . $value["FileName"] . '</span>
+                                    <span class="text-secondary fw-normal">(' . $value["FileSize"] . ')</span>
+                                </span>
+                                <button class="remove-file-btn btn btn-white border-0"><i class="bi bi-x-lg"></i></button>
+                            </li>';
+                        }
+                        echo json_encode(array("type" => "success", "documentList" => $documentList));
+                    } else {
+                        unlink($filePath);
+                        echo json_encode(array("type" => "fail"));
+                    }
+                } else {
+                    echo json_encode(array("type" => "fail"));
+                }
+            }
+            exit();
+        } else {
+            $this->view('errors.404');
+        }
+    }
+
+    public function downloadFile()
+    {
+        if (isset($_POST["documentID"])) {
+            $documentID = $_POST["documentID"];
+            $document = $this->taskModel->getAll("Documents");
+            $filePath = "";
+            $fileName = "";
+            foreach ($document as $doc) {
+                if (sha1($doc["DocumentID"]) == $documentID) {
+                    $filePath = $doc["FilePath"];
+                    $fileName = $doc["FileName"];
+                    break;
+                }
+            }
+
+            if (file_exists($filePath)) {
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($filePath));
+                echo $fileName . ", " . getWebRoot() . "/" . $filePath;
+            } else {
+                echo 'notFound';
+            }
+            exit();
+        } else {
+            $this->view('errors.404');
+        }
+    }
+
+    public function removeFile()
+    {
+        if (isset($_POST["documentID"])) {
+            $documentID = $_POST["documentID"];
+            $document = $this->taskModel->getAll("Documents");
+            $filePath = "";
+            $id = "";
+            foreach ($document as $doc) {
+                if (sha1($doc["DocumentID"]) == $documentID) {
+                    $filePath = $doc["FilePath"];
+                    $id = $doc["DocumentID"];
+                    break;
+                }
+            }
+            if (file_exists($filePath) && $id != "") {
+                unlink($filePath);
+                if ($this->taskModel->removeDocument($id)) {
+                    $documentList = $this->taskModel->getDocumentByTaskID($_POST["taskID"]);
+
+                    $documentHtml = "";
+                    foreach ($documentList as $value) {
+                        $documentHtml .= '<li class="list-group-item list-group-item-action border-0 d-flex align-items-center justify-content-between mb-2 rounded-3">
+                                <span class="file-name fw-medium">
+                                    <span data-value="' . sha1($value["DocumentID"]) . '" class="link-file text-primary text-decoration-underline me-2">' . $value["FileName"] . '</span>
+                                    <span class="text-secondary fw-normal">(' . $value["FileSize"] . ')</span>
+                                </span>
+                                <button class="remove-file-btn btn btn-white border-0"><i class="bi bi-x-lg"></i></button>
+                            </li>';
+                    }
+                    echo json_encode(array("type" => "success", "documentHtml" => $documentHtml));
+                } else {
+                    echo json_encode(array("type" => "fail"));
+                }
+            } else {
+                echo json_encode(array("type" => "notFound"));
             }
             exit();
         } else {

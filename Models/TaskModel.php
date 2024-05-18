@@ -135,7 +135,12 @@ class TaskModel extends BaseModel
     }
 
     public function getDocumentByTaskID($id) {
-        $sql = "SELECT * FROM Documents WHERE TaskID = ${id}";
+        $sql = "SELECT * FROM Documents WHERE TaskID = ${id} ORDER BY DocumentID desc";
+        return $this->getData($sql);
+    }
+
+    public function getDocumentByID($id) {
+        $sql = "SELECT * FROM Documents WHERE DocumentID = ${id}";
         return $this->getData($sql);
     }
 
@@ -170,6 +175,11 @@ class TaskModel extends BaseModel
             mysqli_rollback($this->connect);
             return false;
         }
+    }
+
+    public function removeDocument($id) {
+        $sql = "DELETE FROM Documents WHERE DocumentID = {$id}";
+        return $this->_query($sql);
     }
 
     public function sendTask($data = [])
