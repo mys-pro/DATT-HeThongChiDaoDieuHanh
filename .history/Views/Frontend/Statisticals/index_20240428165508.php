@@ -1,1 +1,0 @@
-<h1>View index statistical</h1>

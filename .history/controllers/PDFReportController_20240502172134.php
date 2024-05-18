@@ -1,4 +1,0 @@
-<?
-class PDFReportController extends BaseController{
-
-}
