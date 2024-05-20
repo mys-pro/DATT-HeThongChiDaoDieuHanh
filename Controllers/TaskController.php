@@ -258,7 +258,14 @@ class TaskController extends BaseController
                         $userReviewer = $value["UserID"];
                         $deadlineReviewer = $value["DeadlineTaskPerformers"];
                     }
+
+                    if ($_SESSION["UserInfo"][0]["UserID"] == $value["UserID"]) {
+                        $progress = $value["ProgressTaskPerformers"];
+                    } else {
+                        $progress = $value["ProgressTask"];
+                    }
                 } else {
+                    $progress = $value["ProgressTask"];
                     $userPerformer = 'null';
                     $userReviewer = 'null';
                     $deadlinePerformer = 1;
@@ -294,7 +301,8 @@ class TaskController extends BaseController
                 "deadlinePerformer" => $deadlinePerformer,
                 "userReviewer" => $userReviewer,
                 "deadlineReviewer" => $deadlineReviewer,
-                "document" => $documentList
+                "document" => $documentList,
+                "progress" => $progress
             ]);
 
             echo json_encode($data);
@@ -307,12 +315,43 @@ class TaskController extends BaseController
     public function deleteTask()
     {
         if (isset($_POST["taskID"])) {
+            $documents = $this->taskModel->getDocumentByTaskID($_POST["taskID"]);
+
             if ($this->taskModel->deleteTask($_POST["taskID"])) {
+                foreach ($documents as $value) {
+                    if (file_exists($value["FilePath"]))
+                        unlink($value["FilePath"]);
+                }
                 echo "success";
             } else {
                 echo "fail";
             }
             exit;
+        } else {
+            $this->view('errors.404');
+        }
+    }
+
+    public function updateTask()
+    {
+        if (isset($_POST['taskID'])) {
+            $data = [
+                'taskID' => $_POST['taskID'],
+                'name' => $_POST['name'],
+                'priority' => $_POST['priority'],
+                'description' => $_POST['description'],
+                'deadlineTask' => $_POST['deadlineTask'],
+                'deadlinePerformer' => $_POST['deadlinePerformer'],
+                'deadlineReview' => $_POST['deadlineReview'],
+                'progress' => $_POST['progress']
+            ];
+
+            if($this->taskModel->updateTask($data)) {
+                echo "success";
+            } else {
+                echo "fail";
+            }
+            exit();
         } else {
             $this->view('errors.404');
         }
@@ -362,6 +401,7 @@ class TaskController extends BaseController
     public function uploadFile()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files']) && isset($_POST["taskID"])) {
+            $type = null;
             $files = $_FILES['files'];
             $uploadDirectory = 'uploads/';
 
@@ -379,27 +419,34 @@ class TaskController extends BaseController
                     $fileSize = formatSizeUnits(filesize($filePath));
                     $insert = $this->taskModel->insertData('Documents', ["NULL", "'{$_POST["taskID"]}'", "'{$files['name'][$i]}'", "'{$fileSize}'", "'{$filePath}'", "current_timestamp()"]);
                     if ($insert) {
-                        $document = $this->taskModel->getDocumentByTaskID($_POST["taskID"]);
+                        $type = true;
+                    } else {
+                        unlink($filePath);
+                        $type = false;
+                    }
+                } else {
+                    $type = false;
+                }
+            }
 
-                        $documentList = "";
-                        foreach ($document as $value) {
-                            $documentList .= '<li class="list-group-item list-group-item-action border-0 d-flex align-items-center justify-content-between mb-2 rounded-3">
+            if ($type == true) {
+                $document = $this->taskModel->getDocumentByTaskID($_POST["taskID"]);
+
+                $documentList = "";
+                foreach ($document as $value) {
+                    $documentList .= '<li class="list-group-item list-group-item-action border-0 d-flex align-items-center justify-content-between mb-2 rounded-3">
                                 <span class="file-name fw-medium">
                                     <span data-value="' . sha1($value["DocumentID"]) . '" class="link-file text-primary text-decoration-underline me-2">' . $value["FileName"] . '</span>
                                     <span class="text-secondary fw-normal">(' . $value["FileSize"] . ')</span>
                                 </span>
                                 <button class="remove-file-btn btn btn-white border-0"><i class="bi bi-x-lg"></i></button>
                             </li>';
-                        }
-                        echo json_encode(array("type" => "success", "documentList" => $documentList));
-                    } else {
-                        unlink($filePath);
-                        echo json_encode(array("type" => "fail"));
-                    }
-                } else {
-                    echo json_encode(array("type" => "fail"));
                 }
+                echo json_encode(array("type" => "success", "documentList" => $documentList));
+            } else {
+                echo json_encode(array("type" => "fail"));
             }
+
             exit();
         } else {
             $this->view('errors.404');

@@ -1,14 +1,3 @@
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="toast-notify" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body d-flex align-items-center text-break">
-
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
-</div>
-
 <div class="content w-100 px-2 overflow-hidden">
     <span class="text-black fs-5 p-3 d-inline-block fw-semibold"><?= $data['pageTitle'] ?></span>
     <div class="row g-0">
@@ -91,10 +80,20 @@
     <div class="modal fade" id="view-task-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header d-flex algin-items-center">
                     <h1 class="modal-title fs-5 me-3" id="staticBackdropLabel">Công việc</h1>
                     <span class="badge bg-opacity-25 fw-semibold" data-value="Dự thảo">Dự thảo</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="btn-group ms-auto" id="menu-kebab-task-view">
+                        <button type="button" class="btn border-0 dropdown-toggle p-0" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots-vertical text-secondary"></i>
+                        </button>
+                        <ul class="dropdown-menu p-2">
+                            <li class="dropdown-item rounded-3">
+                                <button id="delete-task-btn" type="button" class="btn border-0 text-start w-100 text-danger p-0"><i class="bi bi-trash3 me-2"></i>Xóa</button>
+                            </li>
+                        </ul>
+                    </div>
+                    <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <label for="task-name" class="mb-1">Tên công việc <span class="text-danger">*</span></label>
@@ -180,23 +179,46 @@
                         </div>
                     </div>
 
-                    <div class="attachments">
+                    <div class="attachments mb-2">
                         <div class="attachments-title ms-1 mb-1 d-flex align-items-center justify-content-between">
                             <span class="fw-semibold">
-                                <i class="bi bi-paperclip me-2"></i>Đính kèm
+                                <i class="bi bi-paperclip me-2 text-secondary"></i>Đính kèm
                             </span>
-                            <label for="add-file" class="btn btn-secondary py-1">Thêm</label>
+                            <label for="add-file" class="btn btn-primary rounded-circle py-0 px-1"><i class="bi bi-plus-lg"></i></label>
                             <input type="file" class="d-none" id="add-file" name="files[]" multiple>
                         </div>
 
                         <ul id="attachments-list" class="list-group list-group-flush">
                         </ul>
                     </div>
+
+                    <div class="comment-box">
+                        <div class="comment-title ms-1 mb-1">
+                            <label for="comment-input" class="fw-semibold mb-1">
+                                <i class="bi bi-chat-dots-fill text-secondary me-2"></i>Bình luận
+                            </label>
+                            <div class="mb-1">
+
+                            </div>
+                            <div class="input-group w-100">
+                                <input id="comment-input" type="text" class="form-control rounded-start-pill" placeholder="Nhập bình luận..." aria-label="Recipient's username" aria-describedby="button-addon2">
+                                <button class="btn btn-primary rounded-end-pill" type="button" id="button-addon2"><i class="bi bi-send"></i></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button id="delete-task-btn" type="button" class="btn btn-danger"><i class="bi bi-trash3 me-2"></i>Xóa</button>
-                    <button id="save-task-btn" type="button" class="btn btn-primary d-none"><i class="bi bi-floppy2 me-2"></i>Lưu</button>
-                    <button id="send-task-btn" type="button" class="btn btn-primary" assigned-by="0"><i class="bi bi-send me-2"></i>Gửi</button>
+                <div class="modal-footer justify-content-between">
+                    <div class="d-flex align-items-center" id="range-content">
+                        <span>Tiến độ: </span>
+                        <input type="range" class="mx-2" min="0" max="100" id="progress-range" value="0">
+                        <span id="progress-text">0%</span>
+                    </div>
+
+                    <div>
+                        <button id="save-task-btn" type="button" class="btn btn-primary d-none"><i class="bi bi-floppy2 me-2"></i>Lưu</button>
+                        <button id="send-task-btn" type="button" class="btn btn-primary" assigned-by="0"><i class="bi bi-send me-2"></i>Gửi</button>
+                        <button id="success-task-btn" type="button" class="btn btn-success d-none" assigned-by="0"><i class="bi bi-check-circle me-2"></i>Hoàn thành</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -225,7 +247,7 @@
     <script>
         $(document).ready(function() {
             var taskID = 0;
-            // $('#view-task-modal').modal('show');
+
             function showToast(toast, type, message) {
                 toast.removeClass("text-bg-success");
                 toast.removeClass("text-bg-warning");
@@ -298,7 +320,7 @@
                     viewModal.find("#deadline-TaskPerformers").prop("disabled", true);
                     viewModal.find("#deadline-TaskReview").prop("disabled", true);
                 } else {
-                    viewModal.find("#delete-task-btn").prop("disabled", false);
+                    viewModal.find("#delete-task-btn").prop('disabled', false);
                     viewModal.find('#view-task-name').prop('disabled', false);
                     viewModal.find('#view-task-priority').prop("disabled", false);
                     viewModal.find("#deadline-task").prop('disabled', false);
@@ -316,7 +338,7 @@
 
                     success: function(response) {
                         var data = JSON.parse(response);
-                        updateModalView(data);
+                        updateModalView(data, assignedByUserId);
                         customStatusView();
                         $('#view-task-modal').modal('show');
                     },
@@ -372,18 +394,6 @@
                     $('#view-task-modal').find(".badge").addClass("bg-danger text-danger");
                 } else {
                     $('#view-task-modal').find(".badge").addClass("bg-secondary text-secondary");
-                }
-
-                if (statusTask == "Dự thảo") {
-                    viewModal.find('#send-task-btn').removeClass("d-none");
-                    viewModal.find("#TaskPerformers").prop("disabled", false);
-                    viewModal.find("#TaskReview").prop("disabled", false);
-                    viewModal.find("#save-task-btn").addClass("d-none");
-                } else {
-                    viewModal.find('#send-task-btn').addClass("d-none");
-                    viewModal.find("#TaskPerformers").prop("disabled", true);
-                    viewModal.find("#TaskReview").prop("disabled", true);
-                    viewModal.find("#save-task-btn").removeClass("d-none");
                 }
             }
 
@@ -699,7 +709,7 @@
                 }
             })
 
-            function updateModalView(data = []) {
+            function updateModalView(data = [], assignedByUserId) {
                 var viewModal = $("#view-task-modal");
                 viewModal.find('.badge').attr("data-value", data["statusTask"]);
                 viewModal.find('.badge').text(data["statusTask"]);
@@ -720,7 +730,49 @@
                 viewModal.find("#deadline-TaskReview").val(data["deadlineReviewer"]);
                 taskID = data["taskID"];
                 viewModal.find("#attachments-list").html(data["document"]);
+                viewModal.find('#progress-range').val(data["progress"]);
+                viewModal.find('#progress-text').text(data["progress"] + "%");
+
+                if (data["statusTask"] == "Dự thảo") {
+                    viewModal.find('#send-task-btn').removeClass("d-none");
+                    viewModal.find("#TaskPerformers").prop("disabled", false);
+                    viewModal.find("#TaskReview").prop("disabled", false);
+                    viewModal.find("#save-task-btn").addClass("d-none");
+                    viewModal.find("#range-content").addClass("d-none");
+                    viewModal.find(".modal-footer").removeClass("justify-content-between");
+                } else {
+                    viewModal.find('#send-task-btn').addClass("d-none");
+                    viewModal.find("#TaskPerformers").prop("disabled", true);
+                    viewModal.find("#TaskReview").prop("disabled", true);
+                    viewModal.find("#save-task-btn").removeClass("d-none");
+                    viewModal.find("#range-content").removeClass("d-none");
+                    viewModal.find(".modal-footer").addClass("justify-content-between");
+                }
+
+                if (data["statusTask"].indexOf("Hoàn thành") !== 1) {
+                    viewModal.find("#success-task-btn").prop("disabled", true);
+                } else {
+                    viewModal.find("#success-task-btn").prop("disabled", false);
+                }
+
+                if (assignedByUserId == <?= $_SESSION["UserInfo"][0]["UserID"] ?>) {
+                    viewModal.find("#progress-range").prop("disabled", true);
+                } else {
+                    viewModal.find("#progress-range").prop("disabled", false);
+
+                }
             }
+
+            $('#progress-range').on('input', function() {
+                var progress = $(this).val();
+                $('#progress-text').text(progress + '%');
+
+                if (progress == 100) {
+                    $('#success-task-btn').removeClass('d-none');
+                } else {
+                    $('#success-task-btn').addClass('d-none');
+                }
+            });
 
             //============================Delete Task============================
 
@@ -820,7 +872,46 @@
             })
 
             $('#save-task-btn').click(function() {
-                alert(taskID);
+                var viewModal = $("#view-task-modal");
+                var name = viewModal.find("#view-task-name").val();
+                var priority = viewModal.find("#view-task-priority").val();
+                var description = descriptionEditor.getData();
+                var deadlineTask = viewModal.find("#deadline-task").val();
+                var deadlinePerformer = viewModal.find("#deadline-TaskPerformers").val();
+                var deadlineReview = viewModal.find("#deadline-TaskReview").val();
+                var progress = viewModal.find("#progress-range").val();
+
+                $.ajax({
+                    url: "<?= getWebRoot() ?>/Task/updateTask",
+                    type: "POST",
+                    data: {
+                        taskID: taskID,
+                        name: name,
+                        priority: priority,
+                        description: description,
+                        deadlineTask: deadlineTask,
+                        deadlinePerformer: deadlinePerformer,
+                        deadlineReview: deadlineReview,
+                        progress: progress
+                    },
+
+                    success: function(response) {
+                        if (response == "success") {
+                            showToast($("#toast-notify"), 'success', 'Cập nhật thành công.');
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1000);
+                        } else if (response == "fail") {
+                            showToast($("#toast-notify"), 'danger', 'Cập nhật thất bại.');
+                        } else {
+                            showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                        }
+                    },
+
+                    error: function() {
+                        showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                    }
+                })
             })
         })
     </script>

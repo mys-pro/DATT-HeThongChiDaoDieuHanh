@@ -134,12 +134,14 @@ class TaskModel extends BaseModel
         return $this->getData($sql);
     }
 
-    public function getDocumentByTaskID($id) {
+    public function getDocumentByTaskID($id)
+    {
         $sql = "SELECT * FROM Documents WHERE TaskID = ${id} ORDER BY DocumentID desc";
         return $this->getData($sql);
     }
 
-    public function getDocumentByID($id) {
+    public function getDocumentByID($id)
+    {
         $sql = "SELECT * FROM Documents WHERE DocumentID = ${id}";
         return $this->getData($sql);
     }
@@ -161,10 +163,10 @@ class TaskModel extends BaseModel
         mysqli_begin_transaction($this->connect);
         try {
             $sql1 = "DELETE FROM TaskPerformers WHERE TaskID = ${id}";
+            $sql2 = "DELETE FROM Documents WHERE TaskID = ${id}";
+            $sql3 = "DELETE FROM Tasks WHERE TaskID = ${id}";
 
-            $sql2 = "DELETE FROM Tasks WHERE TaskID = ${id}";
-
-            if ($this->_query($sql1) && $this->_query($sql2)) {
+            if ($this->_query($sql1) && $this->_query($sql2) && $this->_query($sql3)) {
                 mysqli_commit($this->connect);
                 return true;
             } else {
@@ -177,22 +179,50 @@ class TaskModel extends BaseModel
         }
     }
 
-    public function removeDocument($id) {
-        $sql = "DELETE FROM Documents WHERE DocumentID = {$id}";
-        return $this->_query($sql);
+    public function updateTask($data = [])
+    {
+        mysqli_begin_transaction($this->connect);
+        try {
+            $sql1 = "UPDATE Tasks SET TaskName='{$data["name"]}', Description='{$data["description"]}', Priority='{$data["priority"]}', Deadline='{$data["deadlineTask"]}' WHERE TaskID = {$data["taskID"]}";
+            $sql2 = "UPDATE TaskPerformers SET Deadline='{$data["deadlinePerformer"]}' WHERE TaskID='{$data["taskID"]}' AND Reviewer='0'";
+            $sql3 = "UPDATE TaskPerformers SET Deadline='{$data["deadlineReview"]}' WHERE TaskID='{$data["taskID"]}' AND Reviewer='1'";
+
+            $update1 = $this->_query($sql1);
+            $update2 = $this->_query($sql2);
+            $update3 = $this->_query($sql3);
+            
+            $taskPerformers = $this->getTaskPerformers($data["taskID"], $_SESSION["UserInfo"][0]["UserID"]);
+            if(count($taskPerformers) > 0) {
+                $sql4 = "UPDATE TaskPerformers SET Progress='{$data["progress"]}' WHERE TaskID='{$data["taskID"]}' AND UserID='{$_SESSION["UserInfo"][0]["UserID"]}'";
+                $update4 = $this->_query($sql4);
+
+                if($update1 && $update2 && $update3 && $update4) {
+                    mysqli_commit($this->connect);
+                    return true;
+                }
+            }
+
+            if($update1 && $update2 && $update3) {
+                mysqli_commit($this->connect);
+                return true;
+            }
+        } catch (Exception $e) {
+            mysqli_rollback($this->connect);
+            return false;
+        }
     }
 
     public function sendTask($data = [])
     {
         mysqli_begin_transaction($this->connect);
         try {
-            $sql = "UPDATE Tasks SET TaskName='{$data["name"]}', Description='{$data["description"]}', Priority='{$data["priority"]}', Status='Chưa thực hiện', Deadline='{$data["deadlineTask"]}' WHERE TaskID = {$data["taskID"]}";
+            $sql = "UPDATE Tasks SET TaskName='{$data["name"]}', Description='{$data["description"]}', Priority='{$data["priority"]}', Status='Đang thực hiện', Deadline='{$data["deadlineTask"]}' WHERE TaskID = {$data["taskID"]}";
             $insert = $this->_query($sql);
 
             date_default_timezone_set('Asia/Ho_Chi_Minh');
             $currentDate = date('Y-m-d');
-            $taskPerformers = $this->addData("TaskPerformers", ["'{$data["taskID"]}'", "'{$data["taskPerformers"]}'", "'{$currentDate}'", "'{$data["deadlineTaskPerformers"]}'", "''", "'0'", "'0'", "'Chưa thực hiện'", "''"]);
-            $taskReview = $this->addData("TaskPerformers", ["'{$data["taskID"]}'", "'{$data["taskReview"]}'", "NULL", "'{$data["deadlineReview"]}'", "''", "'0'", "'1'", "'Chưa thực hiện'", "''"]);
+            $taskPerformers = $this->addData("TaskPerformers", ["'{$data["taskID"]}'", "'{$data["taskPerformers"]}'", "'{$currentDate}'", "'{$data["deadlineTaskPerformers"]}'", "''", "'0'", "'0'", "'Đang thực hiện'", "''"]);
+            $taskReview = $this->addData("TaskPerformers", ["'{$data["taskID"]}'", "'{$data["taskReview"]}'", "NULL", "'{$data["deadlineReview"]}'", "''", "'0'", "'1'", "'Đang thực hiện'", "''"]);
 
             if ($insert && $taskPerformers && $taskReview) {
                 mysqli_commit($this->connect);
@@ -205,5 +235,11 @@ class TaskModel extends BaseModel
             mysqli_rollback($this->connect);
             return false;
         }
+    }
+
+    public function removeDocument($id)
+    {
+        $sql = "DELETE FROM Documents WHERE DocumentID = {$id}";
+        return $this->_query($sql);
     }
 }

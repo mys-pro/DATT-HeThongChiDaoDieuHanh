@@ -12,7 +12,7 @@ if (!isset($_SESSION["UserInfo"])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="<?= getWebRoot() ?>/Public/Image/icon.png"/>
+    <link rel="icon" href="<?= getWebRoot() ?>/Public/Image/icon.png" />
     <title>Hệ thống chỉ đạo điều hành</title>
     <link rel="stylesheet" href="<?= getWebRoot() ?>/library/bootstrap/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css?v=<?= time() ?>">
     <link rel="stylesheet" href="<?= getWebRoot() ?>/public/css/material_blue.css?v=<?= time() ?>">
@@ -37,6 +37,17 @@ if (!isset($_SESSION["UserInfo"])) {
             <div class="d-flex">
                 <div class="toast-body">
                     Xin chào, <?= $userInfo["FullName"] ?>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toast-notify" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center text-break">
+
                 </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>

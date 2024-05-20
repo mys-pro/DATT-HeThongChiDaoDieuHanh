@@ -3,7 +3,9 @@ $(document).ready(function () {
         location.reload();
     });
 
-    
+    $('#dropdown-apps').click(function(event) {
+        event.preventDefault();
+    });
 
     //============================================= Login =============================================//
     $('.btn-eye').click(function () {

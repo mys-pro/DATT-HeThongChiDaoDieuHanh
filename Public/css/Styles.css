@@ -373,6 +373,40 @@
     cursor: pointer;
 }
 
+#progress-range {
+    cursor: pointer;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: inner-spin-button !important;
+    opacity: 1 !important;
+    display: block !important;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+input[type=number] {
+    appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    opacity: 1;
+    display: block !important;
+    margin: 0; /* Đảm bảo không có khoảng trống không mong muốn */
+}
+
+#menu-kebab-task-view > button[data-bs-toggle="dropdown"]::after {
+    display: none !important;
+}
+
+#menu-kebab-task-view > .dropdown-menu .dropdown-item:hover {
+    background-color: rgba(0, 0, 0, 0.05)
+}
 /*============================================= Date style =============================================*/
 .flatpickr-months .flatpickr-month {
     background-color: var(--primary-color) !important;
@@ -489,8 +523,11 @@
         flex: 1;
     }
 
-    #view-task-modal .modal-content {
+    #view-task-modal .modal-dialog {
         min-width: 100% !important;
+    }
+
+    #view-task-modal .modal-content {
         max-height: 100% !important;
     }
 }
