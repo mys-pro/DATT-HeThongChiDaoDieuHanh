@@ -25,6 +25,7 @@ class LoginController extends BaseController
                     } else {
                         $_SESSION['Welcome'] = true;
                         $_SESSION['UserInfo'] = $userInfo;
+                        $_SESSION["Role"] = $this->userModel->getPermissions($userInfo[0]["UserID"]);
                         echo 'success';
                     }
                 } else {

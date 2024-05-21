@@ -46,4 +46,9 @@ class UserModel extends BaseModel
         $sql = "UPDATE Users SET Password = '${password}', ForgotToken = NULL WHERE UserID = ${id}";
         return $this->_query($sql);
     }
+
+    public function getPermissions($id) {
+        $sql = "SELECT * FROM Permissions WHERE UserID = ${id}";
+        return $this->getData($sql);
+    }
 }

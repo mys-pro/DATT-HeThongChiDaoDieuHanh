@@ -43,7 +43,7 @@ if (!isset($_SESSION["UserInfo"])) {
         </div>
     </div>
 
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-loading">
         <div id="toast-notify" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body d-flex align-items-center text-break">

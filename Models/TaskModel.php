@@ -15,7 +15,8 @@ class TaskModel extends BaseModel
             SUM(CASE WHEN tp.Status = 'Hoàn thành' THEN 1 ELSE 0 END) AS 'Hoàn thành đúng hạn',
             SUM(CASE WHEN tp.Status = 'Hoàn thành trễ hạn' THEN 1 ELSE 0 END) AS 'Hoàn thành trễ hạn',
             SUM(CASE WHEN tp.Status = 'Chờ duyệt' THEN 1 ELSE 0 END) AS 'Chờ duyệt',
-            SUM(CASE WHEN tp.Status NOT IN ('Hoàn thành trước hạn', 'Hoàn thành', 'Hoàn thành trễ hạn', 'Chờ duyệt') THEN 1 ELSE 0 END) AS 'Chưa hoàn thành'
+            SUM(CASE WHEN tp.Status NOT IN ('Hoàn thành trước hạn', 'Hoàn thành', 'Hoàn thành trễ hạn', 'Chờ duyệt') THEN 1 ELSE 0 END) AS 'Chưa hoàn thành',
+            SUM(CASE WHEN DATE_ADD(tp.DateStart, INTERVAL tp.Deadline DAY) < NOW() AND tp.Status NOT LIKE 'Hoàn thành%' THEN 1 ELSE 0 END) AS 'Quá hạn'
             FROM Tasks t JOIN TaskPerformers tp ON t.TaskID = tp.TaskID JOIN Users u ON tp.UserID = u.UserID 
             RIGHT JOIN Departments d ON u.DepartmentID = d.DepartmentID";
 
@@ -93,15 +94,37 @@ class TaskModel extends BaseModel
         return $this->getData($sql);
     }
 
+    public function getTask()
+    {
+        $sql = "SELECT *, 
+        CASE 
+            WHEN DATE_ADD(DateCreated, INTERVAL Deadline DAY) < NOW() AND Status NOT LIKE 'Hoàn thành%' THEN 'Quá hạn' 
+            ELSE Status 
+        END AS StatusTask
+        FROM Tasks";
+        return $this->getData($sql);
+    }
+
     public function getTaskByID($id = 0)
     {
-        $sql = "SELECT * FROM Tasks WHERE AssignedBy = ${id}";
+        $sql = "SELECT *, 
+        CASE 
+            WHEN DATE_ADD(DateCreated, INTERVAL Deadline DAY) < NOW() AND Status NOT LIKE 'Hoàn thành%' THEN 'Quá hạn' 
+            ELSE Status 
+        END AS StatusTask
+        FROM Tasks
+        WHERE AssignedBy = ${id}";
         return $this->getData($sql);
     }
 
     public function getTaskByName($name = null)
     {
-        $sql = "SELECT * FROM Tasks";
+        $sql = "SELECT *, 
+        CASE 
+            WHEN DATE_ADD(DateCreated, INTERVAL Deadline DAY) < NOW() AND Status NOT LIKE 'Hoàn thành%' THEN 'Quá hạn' 
+            ELSE Status 
+        END AS StatusTask
+        FROM Tasks";
         if ($name != null && $name != "") {
             $sql .= " WHERE TaskName LIKE '%${name}%'";
         }
@@ -111,7 +134,13 @@ class TaskModel extends BaseModel
 
     public function getTaskPerformers($TaskID = 0, $UserID = 0)
     {
-        $sql = "SELECT t.TaskName, tp.* FROM Tasks t JOIN TaskPerformers tp ON t.TaskID = tp.TaskID WHERE tp.TaskID = ${TaskID} AND UserID = ${UserID}";
+        $sql = "SELECT t.TaskName, tp.*, 
+        CASE 
+            WHEN DATE_ADD(tp.DateStart, INTERVAL tp.Deadline DAY) < NOW() AND tp.Status NOT LIKE 'Hoàn thành%' AND tp.Status != 'Chờ duyệt' THEN 'Quá hạn' 
+            ELSE tp.Status 
+        END AS StatusPerformer
+        FROM Tasks t JOIN TaskPerformers tp ON t.TaskID = tp.TaskID 
+        WHERE tp.TaskID = ${TaskID} AND UserID = ${UserID}";
         return $this->getData($sql);
     }
 
@@ -153,7 +182,30 @@ class TaskModel extends BaseModel
 
     public function viewTask($id)
     {
-        $sql = "SELECT t.TaskID, t.TaskName, t.Description, t.Priority, t.Progress AS ProgressTask, t.Status AS StatusTask, t.Deadline AS DeadlineTask, u.Avatar, u.FullName, p.PositionName, d.DepartmentName, tp.UserID, tp.Deadline AS DeadlineTaskPerformers, tp.Progress AS ProgressTaskPerformers, tp.Reviewer, tp.Status AS StatusTaskPerformers, tp.Comment 
+        $sql = "SELECT t.TaskID, 
+        t.TaskName, 
+        t.Description, 
+        t.Priority, 
+        t.Progress AS ProgressTask, 
+        CASE 
+            WHEN DATE_ADD(t.DateCreated, INTERVAL t.Deadline DAY) < NOW() AND t.Status NOT LIKE 'Hoàn thành'
+            THEN 'Quá hạn' 
+        ELSE t.Status END AS StatusTask, 
+        t.Deadline AS DeadlineTask, 
+        u.Avatar, u.FullName, 
+        p.PositionName, 
+        d.DepartmentName, 
+        tp.UserID, 
+        tp.Deadline AS DeadlineTaskPerformers, 
+        tp.Progress AS ProgressTaskPerformers, 
+        tp.Reviewer, 
+        CASE 
+            WHEN (tp.DateStart IS NULL AND DATE_ADD(t.DateCreated, INTERVAL t.Deadline DAY) < NOW() AND tp.Status NOT LIKE 'Hoàn thành%') AND tp.Status != 'Chờ duyệt'
+            OR (tp.DateStart IS NOT NULL AND DATE_ADD(tp.DateStart, INTERVAL tp.Deadline DAY) < NOW() AND tp.Status NOT LIKE 'Hoàn thành%') AND tp.Status != 'Chờ duyệt'
+               THEN 'Quá hạn'
+            ELSE tp.Status 
+        END AS StatusTaskPerformers,
+        tp.Comment 
         FROM Tasks t JOIN Users u ON t.AssignedBy = u.UserID JOIN Positions p ON u.PositionID = p.PositionID LEFT JOIN Departments d ON u.DepartmentID = d.DepartmentID LEFT JOIN TaskPerformers tp ON t.TaskID = tp.TaskID WHERE t.TaskID = ${id}";
         return $this->getData($sql);
     }
@@ -164,9 +216,10 @@ class TaskModel extends BaseModel
         try {
             $sql1 = "DELETE FROM TaskPerformers WHERE TaskID = ${id}";
             $sql2 = "DELETE FROM Documents WHERE TaskID = ${id}";
-            $sql3 = "DELETE FROM Tasks WHERE TaskID = ${id}";
+            $sql3 = "DELETE FROM Comments WHERE TaskID = ${id}";
+            $sql4 = "DELETE FROM Tasks WHERE TaskID = ${id}";
 
-            if ($this->_query($sql1) && $this->_query($sql2) && $this->_query($sql3)) {
+            if ($this->_query($sql1) && $this->_query($sql2) && $this->_query($sql3) && $this->_query($sql4)) {
                 mysqli_commit($this->connect);
                 return true;
             } else {
@@ -190,19 +243,19 @@ class TaskModel extends BaseModel
             $update1 = $this->_query($sql1);
             $update2 = $this->_query($sql2);
             $update3 = $this->_query($sql3);
-            
+
             $taskPerformers = $this->getTaskPerformers($data["taskID"], $_SESSION["UserInfo"][0]["UserID"]);
-            if(count($taskPerformers) > 0) {
+            if (count($taskPerformers) > 0) {
                 $sql4 = "UPDATE TaskPerformers SET Progress='{$data["progress"]}' WHERE TaskID='{$data["taskID"]}' AND UserID='{$_SESSION["UserInfo"][0]["UserID"]}'";
                 $update4 = $this->_query($sql4);
 
-                if($update1 && $update2 && $update3 && $update4) {
+                if ($update1 && $update2 && $update3 && $update4) {
                     mysqli_commit($this->connect);
                     return true;
                 }
             }
 
-            if($update1 && $update2 && $update3) {
+            if ($update1 && $update2 && $update3) {
                 mysqli_commit($this->connect);
                 return true;
             }
@@ -241,5 +294,53 @@ class TaskModel extends BaseModel
     {
         $sql = "DELETE FROM Documents WHERE DocumentID = {$id}";
         return $this->_query($sql);
+    }
+
+    public function getCommentByTaskID($id)
+    {
+        $sql = "SELECT c.*, u.Avatar, u.FullName FROM Comments c JOIN Users u ON c.UserID = u.UserID JOIN Tasks t ON c.TaskID = t.TaskID WHERE t.TaskID = {$id} ORDER BY c.CommentID desc";
+        return $this->getData($sql);
+    }
+
+    public function removeComment($id)
+    {
+        $sql = "DELETE FROM Comments WHERE CommentID = {$id}";
+        return $this->_query($sql);
+    }
+
+    public function sendAppraisal($id, $progress, $idReviewer)
+    {
+        mysqli_begin_transaction($this->connect);
+        try {
+            $sql1 = "UPDATE TaskPerformers SET Status='Chờ duyệt', Progress='{$progress}' WHERE TaskID = '{$id}' AND UserID = '{$_SESSION["UserInfo"][0]["UserID"]}' AND Reviewer = '0'";
+
+            $sql2 = "UPDATE TaskPerformers SET DateStart=current_timestamp() WHERE TaskID = '{$id}' AND UserID = '{$idReviewer}' AND Reviewer = '1'";
+
+            if($this->_query($sql1) && $this->_query($sql2)) {
+                mysqli_commit($this->connect);
+                return true;
+            }
+        } catch (Exception $e) {
+            mysqli_rollback($this->connect);
+            return false;
+        }
+    }
+
+    public function recallTask($id, $idReviewer)
+    {
+        mysqli_begin_transaction($this->connect);
+        try {
+            $sql1 = "UPDATE TaskPerformers SET Status='Đang thực hiện' WHERE TaskID = '{$id}' AND UserID = '{$_SESSION["UserInfo"][0]["UserID"]}' AND Reviewer = '0'";
+
+            $sql2 = "UPDATE TaskPerformers SET DateStart=NULL WHERE TaskID = '{$id}' AND UserID = '{$idReviewer}' AND Reviewer = '1'";
+
+            if($this->_query($sql1) && $this->_query($sql2)) {
+                mysqli_commit($this->connect);
+                return true;
+            }
+        } catch (Exception $e) {
+            mysqli_rollback($this->connect);
+            return false;
+        }
     }
 }

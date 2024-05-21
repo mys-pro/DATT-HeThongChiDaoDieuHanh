@@ -8,9 +8,11 @@
                     <i class="bi bi-search"></i>
                 </button>
             </div>
-            <button id="btn-add-task" class="btn btn-primary my-2 me-2" type="button" data-bs-toggle="modal" data-bs-target="#add-task-modal">
-                <i class="bi bi-plus-lg"></i>
-            </button>
+            <?php if (checkRole($_SESSION["Role"], 4)) : ?>
+                <button id="btn-add-task" class="btn btn-primary my-2 me-2" type="button" data-bs-toggle="modal" data-bs-target="#add-task-modal">
+                    <i class="bi bi-plus-lg"></i>
+                </button>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -20,7 +22,7 @@
                 <thead>
                     <tr>
                         <th class="text-center" scope="col">STT</th>
-                        <th class="text-start" scope="col">Tên công việc</th>
+                        <th class="text-start" scope="col" style="width: 220px">Tên công việc</th>
                         <th class="text-start" scope="col">Tình trạng</th>
                         <th class="text-start" scope="col">Người giao</th>
                         <th class="text-center" scope="col">Hạn hoàn thành</th>
@@ -197,13 +199,12 @@
                             <label for="comment-input" class="fw-semibold mb-1">
                                 <i class="bi bi-chat-dots-fill text-secondary me-2"></i>Bình luận
                             </label>
-                            <div class="mb-1">
-
+                            <div class="input-comment w-100 mb-2">
+                                <textarea class="textarea-task form-control rounded-0 mb-2 bg-transparent rounded-3" id="comment-input" rows="1" placeholder="Nhập bình luận..."></textarea>
+                                <button class="btn btn-primary me-auto py-1 mt-1 d-none" type="button" id="save-comment">Lưu</i></button>
                             </div>
-                            <div class="input-group w-100">
-                                <input id="comment-input" type="text" class="form-control rounded-start-pill" placeholder="Nhập bình luận..." aria-label="Recipient's username" aria-describedby="button-addon2">
-                                <button class="btn btn-primary rounded-end-pill" type="button" id="button-addon2"><i class="bi bi-send"></i></button>
-                            </div>
+                            <ul class="list-group list-group-flush mb-2" id="comment-list">
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -215,9 +216,12 @@
                     </div>
 
                     <div>
-                        <button id="save-task-btn" type="button" class="btn btn-primary d-none"><i class="bi bi-floppy2 me-2"></i>Lưu</button>
-                        <button id="send-task-btn" type="button" class="btn btn-primary" assigned-by="0"><i class="bi bi-send me-2"></i>Gửi</button>
-                        <button id="success-task-btn" type="button" class="btn btn-success d-none" assigned-by="0"><i class="bi bi-check-circle me-2"></i>Hoàn thành</button>
+                        <button id="recall-task-btn" type="button" class="btn border-0 text-primary"><i class="bi bi-arrow-counterclockwise me-2"></i>Thu hồi</button>
+                        <button id="appraisal-task-btn" type="button" class="btn btn-success"><i class="bi bi-send me-2"></i>Gửi thẩm định</button>
+                        <button id="save-task-btn" type="button" class="btn btn-primary"><i class="bi bi-floppy2 me-2"></i>Lưu</button>
+                        <?php if (checkRole($_SESSION["Role"], 4)) : ?>
+                            <button id="send-task-btn" type="button" class="btn btn-primary" assigned-by="0"><i class="bi bi-send me-2"></i>Gửi</button>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -338,7 +342,7 @@
 
                     success: function(response) {
                         var data = JSON.parse(response);
-                        updateModalView(data, assignedByUserId);
+                        updateModalView(data, assignedBy);
                         customStatusView();
                         $('#view-task-modal').modal('show');
                     },
@@ -361,7 +365,7 @@
                         $(this).children().addClass("bg-warning text-warning");
                     } else if (dataValue == "Chờ duyệt") {
                         $(this).children().addClass("bg-info text-info");
-                    } else if (dataValue == "Trễ hạn") {
+                    } else if (dataValue == "Quá hạn") {
                         $(this).children().addClass("bg-danger text-danger");
                     } else {
                         $(this).children().addClass("bg-secondary text-secondary");
@@ -390,7 +394,7 @@
                     // viewModal.find("#save-task-btn").prop("disabled", true);
                 } else if (statusTask == "Chờ duyệt") {
                     $('#view-task-modal').find(".badge").addClass("bg-info text-info");
-                } else if (statusTask == "Trễ hạn") {
+                } else if (statusTask == "Quá hạn") {
                     $('#view-task-modal').find(".badge").addClass("bg-danger text-danger");
                 } else {
                     $('#view-task-modal').find(".badge").addClass("bg-secondary text-secondary");
@@ -410,6 +414,7 @@
                 if (taskName.trim() === "") {
                     showToast(toastNotify, 'warning', "Vui lòng nhập tên công việc.");
                 } else {
+                    $('#modal-loading').removeClass("d-none");
                     $.ajax({
                         url: "<?= getWebRoot(); ?>/Task/addTask",
                         type: "POST",
@@ -426,13 +431,16 @@
                                 }, 1000);
                             } else if (response === "fail") {
                                 showToast(toastNotify, 'danger', "Thêm thất bại.");
+                                $('#modal-loading').addClass("d-none");
                             } else {
                                 showToast(toastNotify, 'danger', "Lỗi hệ thống vui lòng thử lại sau.");
+                                $('#modal-loading').addClass("d-none");
                             }
                         },
 
                         error: function() {
                             showToast(toastNotify, 'danger', "Lỗi hệ thống vui lòng thử lại sau.");
+                            $('#modal-loading').addClass("d-none");
                         }
                     });
                 }
@@ -737,43 +745,88 @@
                     viewModal.find('#send-task-btn').removeClass("d-none");
                     viewModal.find("#TaskPerformers").prop("disabled", false);
                     viewModal.find("#TaskReview").prop("disabled", false);
-                    viewModal.find("#save-task-btn").addClass("d-none");
-                    viewModal.find("#range-content").addClass("d-none");
+                    viewModal.find("#save-task-btn").css("display", "none");
+                    viewModal.find("#range-content").css("display", "none");
                     viewModal.find(".modal-footer").removeClass("justify-content-between");
                 } else {
                     viewModal.find('#send-task-btn').addClass("d-none");
                     viewModal.find("#TaskPerformers").prop("disabled", true);
                     viewModal.find("#TaskReview").prop("disabled", true);
-                    viewModal.find("#save-task-btn").removeClass("d-none");
-                    viewModal.find("#range-content").removeClass("d-none");
+                    viewModal.find("#save-task-btn").css("display", "inline-block");
+                    viewModal.find("#range-content").css("display", "inline-block");
                     viewModal.find(".modal-footer").addClass("justify-content-between");
                 }
 
-                if (data["statusTask"].indexOf("Hoàn thành") !== 1) {
-                    viewModal.find("#success-task-btn").prop("disabled", true);
+                if (data["statusTask"] == "Chờ duyệt") {
+                    viewModal.find('#recall-task-btn').css("display", "inline-block");
                 } else {
-                    viewModal.find("#success-task-btn").prop("disabled", false);
+                    viewModal.find('#recall-task-btn').css("display", "none");
                 }
 
-                if (assignedByUserId == <?= $_SESSION["UserInfo"][0]["UserID"] ?>) {
+                if(viewModal.find("#progress-range").val() == 100) {
+                    viewModal.find("#appraisal-task-btn").css("display", "inline-block");
+                }
+
+                if (data["statusTask"].indexOf("Hoàn thành") !== -1 || data["statusTask"] === "Chờ duyệt" || assignedByUserId == <?= json_encode($_SESSION["UserInfo"][0]["UserID"]) ?>) {
+                    viewModal.find("#appraisal-task-btn").css("display", "none");
                     viewModal.find("#progress-range").prop("disabled", true);
-                } else {
+                } else if (data["statusTask"].indexOf("Hoàn thành") === -1 || data["statusTask"] !== "Chờ duyệt" || assignedByUserId == <?= json_encode($_SESSION["UserInfo"][0]["UserID"]) ?>) {
                     viewModal.find("#progress-range").prop("disabled", false);
-
                 }
+
+                viewModal.find('#comment-list').html(data["commentList"]);
             }
 
             $('#progress-range').on('input', function() {
                 var progress = $(this).val();
                 $('#progress-text').text(progress + '%');
+                var viewModal = $("#view-task-modal");
+                var idPerformer = viewModal.find("#TaskPerformers").val();
 
                 if (progress == 100) {
-                    $('#success-task-btn').removeClass('d-none');
+                    if (idPerformer == <?= $_SESSION["UserInfo"][0]["UserID"] ?>) {
+                        $('#appraisal-task-btn').css("display", "inline-block");
+                    }
                 } else {
-                    $('#success-task-btn').addClass('d-none');
+                    $('#appraisal-task-btn').css("display", "none");
                 }
             });
 
+            var commentEditor;
+            $('#comment-input').focus(function() {
+                ClassicEditor
+                    .create(document.querySelector('#comment-input'))
+                    .then(editor => {
+                        commentEditor = editor;
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+                $("#save-comment").removeClass('d-none');
+            });
+
+            $('#comment-list').on('click', '.delete-comment-btn', function() {
+                var commentID = $(this).attr("data-value");
+                $.ajax({
+                    url: "<?= getWebRoot() ?>/Task/deleteComment",
+                    type: "POST",
+                    data: {
+                        commentID: commentID,
+                        taskID: taskID
+                    },
+                    success: function(response) {
+                        if (response == "fail") {
+                            showToast($("#toast-notify"), 'danger', 'Xóa bình luận thất bại.');
+                        } else {
+                            $("#view-task-modal").find('#comment-list').html(response);
+                        }
+                    },
+
+                    error: function() {
+                        showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                    }
+                });
+            });
             //============================Delete Task============================
 
             $("#delete-task-btn").click(function() {
@@ -783,6 +836,8 @@
                     $('#delete-task-modal').modal('show');
 
                     $("#submit-delete-task").click(function() {
+                        $('#delete-task-modal').modal('hide');
+                        $('#modal-loading').removeClass("d-none");
                         $.ajax({
                             url: '<?= getWebRoot() ?>/Task/deleteTask',
                             type: "POST",
@@ -799,8 +854,10 @@
                                     }, 1000);
                                 } else if (response == "fail") {
                                     showToast(toastNotify, 'danger', 'Xóa thất bại.');
+                                    $('#modal-loading').addClass("d-none");
                                 } else {
                                     showToast(toastNotify, 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                                    $('#modal-loading').addClass("d-none");
                                 }
                             },
 
@@ -831,7 +888,6 @@
                 if (name.trim() == "" || taskPerformers == null || taskReview == null) {
                     showToast($("#toast-notify"), 'warning', 'Vui lòng điền đầy đủ thông tin.');
                 } else {
-                    $("#view-task-modal").modal("hide");
                     $('#modal-loading').removeClass("d-none");
                     $.ajax({
                         url: "<?= getWebRoot() ?>/Task/sendTask",
@@ -866,6 +922,7 @@
 
                         error: function() {
                             showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                            $('#modal-loading').addClass("d-none");
                         }
                     });
                 }
@@ -881,37 +938,150 @@
                 var deadlineReview = viewModal.find("#deadline-TaskReview").val();
                 var progress = viewModal.find("#progress-range").val();
 
+                if (deadlinePerformer > (deadlineTask - deadlineTaskReview) || deadlineReview > (deadlineTask - deadlineTaskPerformers)) {
+                    showToast($("#toast-notify"), 'warning', 'Thời gian không hợp lệ.');
+                } else if (name.trim() == "") {
+                    showToast($("#toast-notify"), 'warning', 'Tên công việc không được để trống.');
+                } else {
+                    $('#modal-loading').removeClass("d-none");
+                    $.ajax({
+                        url: "<?= getWebRoot() ?>/Task/updateTask",
+                        type: "POST",
+                        data: {
+                            taskID: taskID,
+                            name: name,
+                            priority: priority,
+                            description: description,
+                            deadlineTask: deadlineTask,
+                            deadlinePerformer: deadlinePerformer,
+                            deadlineReview: deadlineReview,
+                            progress: progress
+                        },
+
+                        success: function(response) {
+                            if (response == "success") {
+                                showToast($("#toast-notify"), 'success', 'Cập nhật thành công.');
+                                setTimeout(function() {
+                                    location.reload();
+                                }, 1000);
+                            } else if (response == "fail") {
+                                showToast($("#toast-notify"), 'danger', 'Cập nhật thất bại.');
+                                $('#modal-loading').addClass("d-none");
+                            } else {
+                                showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                                $('#modal-loading').addClass("d-none");
+                            }
+                        },
+
+                        error: function() {
+                            showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                            $('#modal-loading').addClass("d-none");
+                        }
+                    })
+                }
+            })
+
+            $('#save-comment').click(function() {
+                var comment = commentEditor.getData();
+                if (comment.trim() != "") {
+                    $.ajax({
+                        url: '<?= getWebRoot() ?>/Task/addComment',
+                        type: 'POST',
+                        data: {
+                            taskID: taskID,
+                            comment: comment
+                        },
+                        success: function(response) {
+                            if (response == 'fail') {
+                                showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                            } else {
+                                commentEditor.setData("");
+                                $("#view-task-modal").find('#comment-list').html(response);
+                            }
+                        },
+
+                        error: function() {
+                            showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                        }
+                    });
+                }
+            });
+
+            $('#appraisal-task-btn').click(function() {
+                var viewModal = $("#view-task-modal");
+                var name = viewModal.find('#view-task-name').val();
+                var description = descriptionEditor.getData();
+                var taskReview = viewModal.find("#TaskReview").val();
+                var deadlineReview = viewModal.find("#deadline-TaskReview").val();
+                var progress = viewModal.find('#progress-range').val();
+                if (progress == 100) {
+                    $('#modal-loading').removeClass("d-none");
+                    $.ajax({
+                        url: '<?= getWebRoot() ?>/Task/sendAppraisal',
+                        type: "POST",
+                        data: {
+                            taskID: taskID,
+                            name: name,
+                            description: description,
+                            taskReview: taskReview,
+                            deadlineReview: deadlineReview,
+                            progress: progress
+                        },
+                        success: function(response) {
+                            if (response == 'success') {
+                                showToast($("#toast-notify"), 'success', 'Gửi thành công.');
+                                setTimeout(function() {
+                                    window.location.href = "<?= getWebRoot() ?>/ac/cong-viec?v=cho-phe-duyet";
+                                }, 1000);
+                            } else if (response == 'fail') {
+                                showToast($("#toast-notify"), 'danger', 'Gửi thất bại.');
+                                $('#modal-loading').addClass("d-none");
+                            } else {
+                                showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                                $('#modal-loading').addClass("d-none");
+                            }
+                        },
+
+                        error: function() {
+                            showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                            $('#modal-loading').addClass("d-none");
+                        }
+                    });
+                }
+            });
+
+            $('#recall-task-btn').click(function() {
+                var viewModal = $("#view-task-modal");
+                var name = viewModal.find('#view-task-name').val();
+                var taskReview = viewModal.find("#TaskReview").val();
+                $('#modal-loading').removeClass("d-none");
                 $.ajax({
-                    url: "<?= getWebRoot() ?>/Task/updateTask",
+                    url: '<?= getWebRoot() ?>/Task/recallTask',
                     type: "POST",
                     data: {
                         taskID: taskID,
                         name: name,
-                        priority: priority,
-                        description: description,
-                        deadlineTask: deadlineTask,
-                        deadlinePerformer: deadlinePerformer,
-                        deadlineReview: deadlineReview,
-                        progress: progress
+                        taskReview:taskReview
                     },
-
                     success: function(response) {
-                        if (response == "success") {
-                            showToast($("#toast-notify"), 'success', 'Cập nhật thành công.');
+                        if (response == 'success') {
+                            showToast($("#toast-notify"), 'success', 'Thu hồi thành công.');
                             setTimeout(function() {
-                                location.reload();
+                                window.location.href = "<?= getWebRoot() ?>/ac/cong-viec?v=chua-hoan-thanh";
                             }, 1000);
-                        } else if (response == "fail") {
-                            showToast($("#toast-notify"), 'danger', 'Cập nhật thất bại.');
+                        } else if (response == 'fail') {
+                            showToast($("#toast-notify"), 'danger', 'thu hồi thất bại.');
+                            $('#modal-loading').addClass("d-none");
                         } else {
                             showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                            $('#modal-loading').addClass("d-none");
                         }
                     },
-
                     error: function() {
                         showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                        $('#modal-loading').addClass("d-none");
                     }
-                })
+                });
             })
         })
     </script>

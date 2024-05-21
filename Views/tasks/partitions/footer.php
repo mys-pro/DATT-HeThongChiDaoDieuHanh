@@ -27,7 +27,7 @@
     </div>
 </div>
 
-<div class="modal-loading z-3 d-none" id="modal-loading">
+<div class="modal-loading position-fixed d-none" id="modal-loading">
     <div class="modal-loading__content d-flex flex-column justify-content-center">
         <div class="spinner spinner-border text-primary mx-auto" role="status"></div>
         <span class="text-center fs-6 fw-bold mt-3">Loading...</span>

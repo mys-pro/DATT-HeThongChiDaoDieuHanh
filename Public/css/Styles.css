@@ -365,8 +365,18 @@
     min-height: 51px;
 }
 
+#view-task-modal .select2-dropdown {
+    border: none !important;
+    border-radius: 4px !important;
+    box-shadow: 0px 0px 2px 2px rgba(102, 102, 102, 0.1);
+}
+
+#toast-loading {
+    z-index: 1300;
+}
+
 #modal-loading {
-    position: fixed;
+    z-index: 1200;
 }
 
 .link-file {
@@ -377,35 +387,44 @@
     cursor: pointer;
 }
 
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-    -webkit-appearance: inner-spin-button !important;
-    opacity: 1 !important;
-    display: block !important;
-    margin: 0;
-}
-
-input[type=number] {
-    -moz-appearance: textfield;
-}
-
-input[type=number] {
-    appearance: textfield;
-}
-
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-    opacity: 1;
-    display: block !important;
-    margin: 0; /* Đảm bảo không có khoảng trống không mong muốn */
-}
-
 #menu-kebab-task-view > button[data-bs-toggle="dropdown"]::after {
     display: none !important;
 }
 
 #menu-kebab-task-view > .dropdown-menu .dropdown-item:hover {
     background-color: rgba(0, 0, 0, 0.05)
+}
+
+.comment-info {
+    max-height: 36px;
+}
+
+.comment-info-name {
+    font-size: 14px;
+}
+
+.comment-info-date {
+    font-size: 12px;
+}
+
+.comment-content {
+    text-align: justify;
+}
+
+.comment-content > .dropdown > button[data-bs-toggle="dropdown"] {
+    right: 16px
+}
+
+.comment-content > .dropdown > button[data-bs-toggle="dropdown"]::after {
+    display: none !important;
+}
+
+#appraisal-task-btn {
+    display: none;
+}
+
+#recall-task-btn {
+    display: none;
 }
 /*============================================= Date style =============================================*/
 .flatpickr-months .flatpickr-month {

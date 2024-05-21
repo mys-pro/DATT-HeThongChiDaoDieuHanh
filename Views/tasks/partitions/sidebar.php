@@ -5,19 +5,23 @@
     <hr class="me-2">
 
     <ul class="sidebar__content-list list-unstyled p-0 m-0">
+        <?php if(checkRole($_SESSION["Role"], 4) || checkRole($_SESSION["Role"], 6)):?>
         <li class="sidebar__content-item mb-2">
             <a href="<?= getWebRoot() ?>/ac/thong-ke" class="rounded-3 text-decoration-none text-secondary d-block <?= getActiveMenu($active, 'statistical') ?>">
                 <i class="bi bi-bar-chart me-3"></i>
                 <span>Thống kê</span>
             </a>
         </li>
+        <?php endif; ?>
 
+        <?php if(checkRole($_SESSION["Role"], 4) || checkRole($_SESSION["Role"], 6) || checkRole($_SESSION["Role"], 7)):?>
         <li class="sidebar__content-item mb-2">
             <a href="<?= getWebRoot() ?>/ac/bao-cao" class="rounded-3 text-decoration-none text-secondary d-block <?= getActiveMenu($active, 'report') ?>">
                 <i class="bi bi-file-text me-3"></i>
                 <span>Báo cáo</span>
             </a>
         </li>
+        <?php endif; ?>
 
         <li class="sidebar__content-item mb-2">
             <a href="" class="rounded-3 text-decoration-none text-secondary d-block <?= getDropdownList($active, 'task') ?> position-relative <?= getActiveMenu($active, 'task') ?>" data-bs-toggle="collapse" data-bs-target="#sidebarToggleExternalContent">
@@ -33,13 +37,8 @@
                     </a>
                 </li>
                 <li class="sidebar__dropdown-item mt-2">
-                    <a href="<?= getWebRoot() ?>/ac/cong-viec?v=chua-hoan-thanh" class="text-secondary text-decoration-none rounded-3 d-block d-flex justify-content-between align-items-center <?php if(isset($_REQUEST["v"]) && $_REQUEST["v"] == "chua-hoan-thanh") echo "active" ?>">
-                        Chưa hoàn thành
-                    </a>
-                </li>
-                <li class="sidebar__dropdown-item mt-2">
-                    <a href="<?= getWebRoot() ?>/ac/cong-viec?v=hoan-tat" class="text-secondary text-decoration-none rounded-3 d-block d-flex justify-content-between align-items-center <?php if(isset($_REQUEST["v"]) && $_REQUEST["v"] == "hoan-tat") echo "active" ?>">
-                        Hoàn tất
+                    <a href="<?= getWebRoot() ?>/ac/cong-viec?v=du-thao" class="text-secondary text-decoration-none rounded-3 d-block d-flex justify-content-between align-items-center <?php if(isset($_REQUEST["v"]) && $_REQUEST["v"] == "du-thao") echo "active" ?>">
+                        Dự thảo
                     </a>
                 </li>
                 <li class="sidebar__dropdown-item mt-2">
@@ -53,19 +52,26 @@
                     </a>
                 </li>
                 <li class="sidebar__dropdown-item mt-2">
-                    <a href="<?= getWebRoot() ?>/ac/cong-viec?v=du-thao" class="text-secondary text-decoration-none rounded-3 d-block d-flex justify-content-between align-items-center <?php if(isset($_REQUEST["v"]) && $_REQUEST["v"] == "du-thao") echo "active" ?>">
-                        Dự thảo
+                    <a href="<?= getWebRoot() ?>/ac/cong-viec?v=hoan-tat" class="text-secondary text-decoration-none rounded-3 d-block d-flex justify-content-between align-items-center <?php if(isset($_REQUEST["v"]) && $_REQUEST["v"] == "hoan-tat") echo "active" ?>">
+                        Hoàn tất
+                    </a>
+                </li>
+                <li class="sidebar__dropdown-item mt-2">
+                    <a href="<?= getWebRoot() ?>/ac/cong-viec?v=chua-hoan-thanh" class="text-secondary text-decoration-none rounded-3 d-block d-flex justify-content-between align-items-center <?php if(isset($_REQUEST["v"]) && $_REQUEST["v"] == "chua-hoan-thanh") echo "active" ?>">
+                        Chưa hoàn thành
                     </a>
                 </li>
             </ul>
         </li>
 
+        <?php if(checkRole($_SESSION["Role"], 4)):?>
         <li class="sidebar__content-item mb-2">
             <a href="" class="rounded-3 text-decoration-none text-secondary d-block">
                 <i class="bi bi-folder-check me-3"></i>
                 <span>Xét duyệt</span>
             </a>
         </li>
+        <?php endif; ?>
     </ul>
 
     <hr class="me-2">
