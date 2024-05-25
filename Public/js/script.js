@@ -1,7 +1,10 @@
 $(document).ready(function () {
     var origin = window.location.origin;
     var pathname = window.location.pathname;
-    var baseURL = origin + "/" + pathname.split("/")[1];
+    var baseURL = origin;
+    if (pathname.split("/")[1] == "DATT-HeThongChiDaoDieuHanh") {
+        baseURL = origin + "/" + pathname.split("/")[1];
+    }
 
     $(window).on('popstate', function (event) {
         location.reload();
@@ -9,6 +12,46 @@ $(document).ready(function () {
 
     $('#dropdown-apps').click(function (event) {
         event.preventDefault();
+    });
+
+    //============================================= Notify toast =============================================//
+    if (sessionStorage.getItem('addTask-Success')) {
+        showToast($("#toast-notify"), 'success', "Thêm thành công.");
+        sessionStorage.removeItem('addTask-Success');
+    } else if (sessionStorage.getItem('removeTask-success')) {
+        showToast($("#toast-notify"), 'success', 'Xóa thành công.');
+        sessionStorage.removeItem('removeTask-success');
+    }
+
+    //============================================= Pusher =============================================//
+
+    // Pusher.logToConsole = true;
+
+    var pusher = new Pusher('6cb0dc56f5ed27c15171', {
+        cluster: 'ap1'
+    });
+
+    var channel = pusher.subscribe('direct_operator');
+    channel.bind('update-file', function (data) {
+        if (taskID == data.taskID) {
+            $("#attachments-list").html(data.content);
+        }
+    });
+
+    channel.bind('update-comment', function (data) {
+        if (taskID == data.taskID) {
+            $.ajax({
+                url: baseURL + "/Task/viewComment",
+                type: "POST",
+                data: {
+                    taskID: taskID,
+                },
+
+                success: function (response) {
+                    $("#view-task-modal").find('#comment-list').html(response);
+                }
+            });
+        }
     });
 
     //============================================= Login =============================================//
@@ -414,10 +457,10 @@ $(document).ready(function () {
                     .then(editor => {
                         descriptionEditor = editor;
 
-                        const toolbarElement = editor.ui.view.toolbar.element;
+                        // const toolbarElement = editor.ui.view.toolbar.element;
                         if ($('#Description-view-task').data('readonly') === false) {
                             editor.enableReadOnlyMode('Description-view-task');
-                            toolbarElement.style.display = 'none';
+                            // toolbarElement.style.display = 'none';
                         }
 
                         editor.setData($('#Description-view-task').text());
@@ -514,7 +557,6 @@ $(document).ready(function () {
 
     container.on('click', '#add-task-submit', function () {
         var taskName = $('#add-task-name').val();
-        var toastNotify = $("#toast-notify");
         if (taskName.trim() === "") {
             showToast(toastNotify, 'warning', "Vui lòng nhập tên công việc.");
         } else {
@@ -528,22 +570,19 @@ $(document).ready(function () {
 
                 success: function (response) {
                     if (response === "success") {
-                        showToast(toastNotify, 'success', "Thêm thành công.");
-                        setTimeout(function () {
-                            $('#add-task-name').val("");
-                            window.location.href = baseURL + "/ac/cong-viec?v=du-thao";
-                        }, 1000);
+                        sessionStorage.setItem('addTask-Success', 'true');
+                        window.location.href = baseURL + "/ac/cong-viec?v=du-thao";
                     } else if (response === "fail") {
-                        showToast(toastNotify, 'danger', "Thêm thất bại.");
+                        showToast($("#toast-notify"), 'danger', "Thêm thất bại.");
                         $('#modal-loading').addClass("d-none");
                     } else {
-                        showToast(toastNotify, 'danger', "Lỗi hệ thống vui lòng thử lại sau.");
+                        showToast($("#toast-notify"), 'danger', "Lỗi hệ thống vui lòng thử lại sau.");
                         $('#modal-loading').addClass("d-none");
                     }
                 },
 
                 error: function () {
-                    showToast(toastNotify, 'danger', "Lỗi hệ thống vui lòng thử lại sau.");
+                    showToast($("#toast-notify"), 'danger', "Lỗi hệ thống vui lòng thử lại sau.");
                     $('#modal-loading').addClass("d-none");
                 }
             });
@@ -552,7 +591,6 @@ $(document).ready(function () {
 
     // Remove Task
     container.on('click', '#delete-task-btn', function () {
-        var toastNotify = $("#toast-notify");
         if (taskID != 0) {
             $('#view-task-modal').css("z-index", "1050");
             $('#delete-task-modal').modal('show');
@@ -570,21 +608,19 @@ $(document).ready(function () {
                     success: function (response) {
                         if (response == "success") {
                             taskID = 0;
-                            showToast(toastNotify, 'success', 'Xóa thành công.');
-                            setTimeout(function () {
-                                location.reload();
-                            }, 1000);
+                            sessionStorage.setItem('removeTask-success', 'true');
+                            location.reload();
                         } else if (response == "fail") {
-                            showToast(toastNotify, 'danger', 'Xóa thất bại.');
+                            showToast($("#toast-notify"), 'danger', 'Xóa thất bại.');
                             $('#modal-loading').addClass("d-none");
                         } else {
-                            showToast(toastNotify, 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                            showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
                             $('#modal-loading').addClass("d-none");
                         }
                     },
 
                     error: function () {
-                        showToast(toastNotify, 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                        showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
                     }
                 });
             });
@@ -612,17 +648,10 @@ $(document).ready(function () {
             data: formData,
             processData: false,
             contentType: false,
-            dataType: 'json',
             success: function (response) {
-                if (response.type == "success") {
+                if (response == "success") {
                     showToast($("#toast-notify"), 'success', 'Tải lên thành công.');
-                    $("#attachments-list").html(response.documentList);
-                    var message =
-                    {
-                        update: "file",
-                        taskID: taskID,
-                    };
-                } else if (response.type == 'fail') {
+                } else if (response == 'fail') {
                     showToast($("#toast-notify"), 'danger', 'Tải lên thất bại.');
                 } else {
                     showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
@@ -645,19 +674,12 @@ $(document).ready(function () {
                 documentID: documentID,
                 taskID: taskID
             },
-            dataType: 'json',
             success: function (response) {
-                if (response.type == "success") {
+                if (response == "success") {
                     showToast($("#toast-notify"), 'success', 'Đã xóa tập tin.');
-                    $("#attachments-list").html(response.documentHtml);
-                    var message =
-                    {
-                        update: "file",
-                        taskID: taskID,
-                    };
-                } else if (response.type == 'fail') {
+                } else if (response == 'fail') {
                     showToast($("#toast-notify"), 'danger', 'Xóa tập tin thất bại.');
-                } else if (response.type == 'notFound') {
+                } else if (response == 'notFound') {
                     showToast($("#toast-notify"), 'danger', 'Tập tin không tồn tại.');
                 } else {
                     showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
@@ -724,17 +746,10 @@ $(document).ready(function () {
                     taskID: taskID,
                     comment: comment
                 },
-                dataType: 'json',
                 success: function (response) {
-                    if (response.type == 'success') {
+                    if (response == 'success') {
                         commentEditor.setData("");
-                        $("#view-task-modal").find('#comment-list').html(response.commentList);
-                        var message =
-                        {
-                            update: "comment",
-                            taskID: taskID,
-                        };
-                    } else if (response.type == 'fail') {
+                    } else if (response == 'fail') {
                         showToast($("#toast-notify"), 'danger', 'Gửi bình luận thất bại.');
                     } else {
                         showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
@@ -758,16 +773,10 @@ $(document).ready(function () {
                 commentID: commentID,
                 taskID: taskID
             },
-            dataType: 'json',
             success: function (response) {
-                if (response.type == 'success') {
-                    $("#view-task-modal").find('#comment-list').html(response.commentList);
-                    var message =
-                    {
-                        update: "comment",
-                        taskID: taskID,
-                    };
-                } else if (response.type == 'fail') {
+                if (response == 'success') {
+                    showToast($("#toast-notify"), 'success', 'Đã xóa bình luận.');
+                } else if (response == 'fail') {
                     showToast($("#toast-notify"), 'danger', 'Xóa bình luận thất bại.');
                 } else {
                     showToast($("#toast-notify"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');

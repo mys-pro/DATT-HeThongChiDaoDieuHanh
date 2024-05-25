@@ -15,8 +15,8 @@
                     <i class="bi bi-three-dots-vertical text-secondary"></i>
                 </button>
                 <ul class="dropdown-menu p-2">
-                    <li class="dropdown-item rounded-3">
-                        <button id="delete-task-btn" type="button" class="btn border-0 text-start w-100 text-danger p-0" <?= $assignedBy == $_SESSION["UserInfo"][0]["UserID"] ? "" : "disabled" ?>><i class="bi bi-trash3 me-2"></i>Xóa</button>
+                    <li class="dropdown-item rounded-3 p-0">
+                        <button id="delete-task-btn" type="button" class="btn border-0 text-start w-100 text-danger" <?= $assignedBy == $_SESSION["UserInfo"][0]["UserID"] ? "" : "disabled" ?>><i class="bi bi-trash3 me-2"></i>Xóa</button>
                     </li>
                 </ul>
             </div>
@@ -194,7 +194,7 @@
                 <?php else : ?>
                     <button id="appraisal-task-btn" type="button" class="btn btn-success"><i class="bi bi-send me-2"></i>Gửi thẩm định</button>
                 <?php endif; ?>
-                <?php if ($status != "Dự thảo" && stripos($status, "Hoàn thành") === false) : ?>
+                <?php if ($status != "Dự thảo") : ?>
                     <button id="save-task-btn" type="button" class="btn btn-primary"><i class="bi bi-floppy2 me-2"></i>Lưu</button>
                 <?php endif; ?>
                 <?php if (checkRole($_SESSION["Role"], 4) && $status == "Dự thảo") : ?>

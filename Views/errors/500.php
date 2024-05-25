@@ -1,0 +1,1 @@
+<img src="<?= getWebRoot() ?>/Public/Image/Error-500.jpeg" alt="" width="100%" height="100%">

@@ -3,6 +3,7 @@ class TaskController extends BaseController
 {
     private $taskModel;
     private $userModel;
+    private $pusher;
     public function __construct()
     {
         if (!isset($_SESSION["UserInfo"])) {
@@ -13,6 +14,9 @@ class TaskController extends BaseController
         $this->loadModel('UserModel');
         $this->taskModel = new TaskModel();
         $this->userModel = new UserModel();
+
+        global $pusher;
+        $this->pusher = $pusher;
     }
     public function statistical()
     {
@@ -447,12 +451,14 @@ class TaskController extends BaseController
                             <button class="remove-file-btn btn btn-white border-0"><i class="bi bi-x-lg"></i></button>
                         </li>';
                 }
-
-                echo json_encode(array("type" => "success", "documentList" => $documentList));
+                $this->pusher->trigger('direct_operator', 'update-file', array(
+                    'taskID'=> $_POST['taskID'],
+                    'content' => $documentList,
+                ));
+                echo "success";
             } else {
-                echo json_encode(array("type" => "fail"));
+                echo "fail";
             }
-
             exit();
         } else {
             $this->view('errors.404');
@@ -521,13 +527,59 @@ class TaskController extends BaseController
                                 <button class="remove-file-btn btn btn-white border-0"><i class="bi bi-x-lg"></i></button>
                             </li>';
                     }
-                    echo json_encode(array("type" => "success", "documentHtml" => $documentHtml));
+                    $this->pusher->trigger('direct_operator', 'update-file', array(
+                        'taskID'=> $_POST['taskID'],
+                        'content' => $documentHtml,
+                    ));
+                    echo "success";
                 } else {
-                    echo json_encode(array("type" => "fail"));
+                    echo "fail";
                 }
             } else {
-                echo json_encode(array("type" => "notFound"));
+                echo "notFound";
             }
+            exit();
+        } else {
+            $this->view('errors.404');
+        }
+    }
+
+    public function viewComment()
+    {
+        if (isset($_POST["taskID"])) {
+            $comment = $this->taskModel->getCommentByTaskID($_POST["taskID"]);
+            $commentList = "";
+            foreach ($comment as $value) {
+                $commentList .= '
+                <li class="list-group-item d-flex">
+                    <img src="data:image/jpeg;base64,' . base64_encode($value["Avatar"]) . '" alt="" class="rounded-circle me-2" style="max-width: 36px; min-width: 36px;" height="36px">
+                    <div class="comment-content">';
+
+                if ($value["UserID"] == $_SESSION["UserInfo"][0]["UserID"]) {
+                    $commentList .= '
+                        <div class="dropdown position-static">
+                        <button class="btn border-0 dropdown-toggle position-absolute top-0 p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots text-secondary"></i>
+                        </button>
+                        <ul class="dropdown-menu p-2">
+                            <li class="dropdown-item rounded-3">
+                                <button type="button" class="delete-comment-btn btn border-0 text-start w-100 text-danger p-0" data-value=" ' . sha1($value["CommentID"]) . ' "><i class="bi bi-trash3 me-2"></i>Xóa</button>
+                            </li>
+                        </ul>
+                    </div>';
+                }
+
+                $commentList .= '
+                <div class="comment-info mb-1">
+                            <p class="comment-info-name fw-semibold m-0">' . $value["FullName"] . '</p>
+                            <p class="comment-info-date text-secondary m-0">' . date("d-m-Y", strtotime($value["DateCreated"])) . '</p>
+                        </div>
+                        ' . $value["Content"] . '
+                    </div>
+                </li>';
+            }
+
+            echo $commentList;
             exit();
         } else {
             $this->view('errors.404');
@@ -571,9 +623,12 @@ class TaskController extends BaseController
                     </div>
                 </li>';
                 }
-                echo json_encode(array("type" => "success", "commentList" => $commentList));
+                $this->pusher->trigger('direct_operator', 'update-comment', array(
+                    "taskID" => $_POST["taskID"],
+                ));
+                echo "success";
             } else {
-                echo json_encode(array("type" => "fail"));
+                echo "fail";
             }
             exit();
         } else {
@@ -625,10 +680,12 @@ class TaskController extends BaseController
                     </div>
                 </li>';
                 }
-
-                echo json_encode(array("type" => "success", "commentList" => $commentList));
+                $this->pusher->trigger('direct_operator', 'update-comment', array(
+                    "taskID" => $_POST["taskID"],
+                ));
+                echo "success";
             } else {
-                echo json_encode(array("type" => "fail"));
+                echo "fail";
             }
             exit();
         } else {

@@ -20,6 +20,7 @@
     <script src="<?= getWebRoot() ?>/public/js/chart-4.4.1.min.js?v=<?= time() ?>"></script>
     <script src="<?= getWebRoot() ?>/library/bootstrap/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js?v=<?= time() ?>"></script>
     <script src="<?= getWebRoot() ?>/public/js/script.js?v=<?= time() ?>"></script>
+    <script src="<?= getWebRoot() ?>/public/js/pusher.min.js?v=<?= time() ?>"></script>
 </head>
 
 <body>
