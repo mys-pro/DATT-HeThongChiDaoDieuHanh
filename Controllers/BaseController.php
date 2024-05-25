@@ -1,4 +1,5 @@
 <?php
+
 class BaseController
 {
     const VIEW_FOLDER_NAME = 'Views';
@@ -28,7 +29,8 @@ class BaseController
         return $randomString;
     }
 
-    protected function countSecond($dateTime) {
+    protected function countSecond($dateTime)
+    {
         date_default_timezone_set('Asia/Ho_Chi_Minh');
         $now = date("Y-m-d H:i:s");
 

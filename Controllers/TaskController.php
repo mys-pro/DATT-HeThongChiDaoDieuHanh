@@ -5,6 +5,10 @@ class TaskController extends BaseController
     private $userModel;
     public function __construct()
     {
+        if (!isset($_SESSION["UserInfo"])) {
+            header("Location:" . getWebRoot());
+        }
+
         $this->loadModel('TaskModel');
         $this->loadModel('UserModel');
         $this->taskModel = new TaskModel();
@@ -12,6 +16,11 @@ class TaskController extends BaseController
     }
     public function statistical()
     {
+        if (!checkRole($_SESSION["Role"], 4) && !checkRole($_SESSION["Role"], 6)) {
+            header('Location: ' . getWebRoot() . '/ac/cong-viec');
+            exit();
+        }
+
         if (isset($_POST['priority']) && isset($_POST['date'])) {
             echo json_encode($this->taskModel->statistical($_POST['priority'], $_POST['date'], $_POST['dateStart'], $_POST['dateEnd']));
             exit();
@@ -19,18 +28,14 @@ class TaskController extends BaseController
             $statistical = $this->taskModel->statistical();
         }
 
-        if (checkRole($_SESSION["Role"], 4) || checkRole($_SESSION["Role"], 6)) {
-            $this->view('tasks.index', [
-                'active' => __FUNCTION__,
-                'page' => 'tasks.pages.statistical',
-                'data' => [
-                    'pageTitle' => 'Thống kê',
-                    'statistical' => $statistical,
-                ],
-            ]);
-        } else {
-            header('Location: ' . getWebRoot() . '/ac/cong-viec');
-        }
+        $this->view('tasks.index', [
+            'active' => __FUNCTION__,
+            'page' => 'tasks.pages.statistical',
+            'data' => [
+                'pageTitle' => 'Thống kê',
+                'statistical' => $statistical,
+            ],
+        ]);
     }
 
     public function report()
@@ -254,100 +259,60 @@ class TaskController extends BaseController
     public function viewTask()
     {
         if (isset($_POST["idTask"])) {
-            $task = $this->taskModel->viewTask($_POST["idTask"]);
+            $idTask = $_POST["idTask"];
+            $userID = $_SESSION["UserInfo"][0]["UserID"];
+
+            $task = $this->taskModel->getTaskByIdTask($idTask);
+            $taskPerformer = $this->taskModel->getTaskPerformersByTaskId($idTask);
             $status = $task[0]["StatusTask"];
-            $progress = $task[0]["ProgressTask"];
-            foreach ($task as $value) {
-                $reviewer = $value["Reviewer"];
+            $progress = $task[0]["Progress"];
 
-                if ($reviewer != null) {
-                    if ($reviewer == 0) {
-                        $userPerformer = $value["UserID"];
-                        $deadlinePerformer = $value["DeadlineTaskPerformers"];
-                    }
+            foreach ($taskPerformer as $value) {
+                if ($value["UserID"] == $userID) {
+                    $status = $value["StatusPerformer"];
+                    $progress = $value["Progress"];
+                    break;
+                }
+            }
 
-                    if ($reviewer == 1) {
-                        $userReviewer = $value["UserID"];
-                        $deadlineReviewer = $value["DeadlineTaskPerformers"];
-                    }
+            $performerID = null;
+            $deadlinePerformer = 1;
+            $reviewerID = null;
+            $deadlineReviewer = 1;
 
-                    if ($value["UserID"] == $_SESSION["UserInfo"][0]["UserID"]) {
-                        $status = $value["StatusTaskPerformers"];
-                        $progress = $value["ProgressTaskPerformers"];
-                    }
+            foreach ($taskPerformer as $value) {
+                if ($value["Reviewer"] == 0) {
+                    $performerID = $value["UserID"];
+                    $deadlinePerformer = $value["Deadline"];
                 } else {
-                    $userPerformer = 'null';
-                    $userReviewer = 'null';
-                    $deadlinePerformer = 1;
-                    $deadlineReviewer = 1;
+                    $reviewerID = $value["UserID"];
+                    $deadlineReviewer = $value["Deadline"];
                 }
             }
 
-            $document = $this->taskModel->getDocumentByTaskID($task[0]["TaskID"]);
-            $documentList = "";
-            foreach ($document as $value) {
-                $documentList .= '<li class="list-group-item list-group-item-action border-0 d-flex align-items-center justify-content-between mb-2 rounded-3">
-                    <span class="file-name fw-medium">
-                        <span data-value="' . sha1($value["DocumentID"]) . '" class="link-file text-primary text-decoration-underline me-2">' . $value["FileName"] . '</span>
-                        <span class="text-secondary fw-normal">(' . $value["FileSize"] . ')</span>
-                    </span>
-                    <button class="remove-file-btn btn btn-white border-0"><i class="bi bi-x-lg"></i></button>
-                </li>';
-            }
 
-            $comment = $this->taskModel->getCommentByTaskID($task[0]["TaskID"]);
-            $commentList = "";
-            foreach ($comment as $value) {
-                $commentList .= '
-                <li class="list-group-item d-flex">
-                    <img src="data:image/jpeg;base64,' . base64_encode($value["Avatar"]) . '" alt="" class="rounded-circle me-2" style="max-width: 36px; min-width: 36px;" height="36px">
-                    <div class="comment-content">';
-
-                if ($value["UserID"] == $_SESSION["UserInfo"][0]["UserID"]) {
-                    $commentList .= '
-                    <div class="dropdown position-static">
-                    <button class="btn border-0 dropdown-toggle position-absolute top-0 p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-three-dots text-secondary"></i>
-                    </button>
-                    <ul class="dropdown-menu p-2">
-                        <li class="dropdown-item rounded-3">
-                            <button type="button" class="delete-comment-btn btn border-0 text-start w-100 text-danger p-0" data-value=" ' . sha1($value["CommentID"]) . ' "><i class="bi bi-trash3 me-2"></i>Xóa</button>
-                        </li>
-                    </ul>
-                </div>';
-                }
-
-                $commentList .= '
-                <div class="comment-info mb-1">
-                            <p class="comment-info-name fw-semibold m-0">' . $value["FullName"] . '</p>
-                            <p class="comment-info-date text-secondary m-0">' . date("d-m-Y", strtotime($value["DateCreated"])) . '</p>
-                        </div>
-                        ' . $value["Content"] . '
-                    </div>
-                </li>';
-            }
-
-            $data = ([
-                "taskID" => $task[0]["TaskID"],
-                "statusTask" => $status,
-                "name" =>  $task[0]["TaskName"],
-                "priority" => $task[0]["Priority"],
-                "deadlineTask" => $task[0]["DeadlineTask"],
-                "description" => $task[0]["Description"],
-                "avatar" => base64_encode($task[0]["Avatar"]),
-                "assignedBy" => $task[0]["FullName"],
-                "position" => $task[0]["PositionName"],
-                "department" => $task[0]["DepartmentName"],
-                "userPerformer" => $userPerformer,
-                "deadlinePerformer" => $deadlinePerformer,
-                "userReviewer" => $userReviewer,
-                "deadlineReviewer" => $deadlineReviewer,
-                "document" => $documentList,
-                "progress" => $progress,
-                'commentList' => $commentList
-            ]);
-
-            echo json_encode($data);
+            echo $this->view(
+                'tasks.pages.viewTask',
+                [
+                    'status' => $status,
+                    'assignedBy' => $task[0]["AssignedBy"],
+                    'taskName' => $task[0]["TaskName"],
+                    'priority' => $task[0]["Priority"],
+                    'deadlineTask' => $task[0]["Deadline"],
+                    'assignedInfo' => $this->userModel->userInfo($task[0]["AssignedBy"]),
+                    'description' => $task[0]["Description"],
+                    'departmentList' => $this->taskModel->getAll('Departments'),
+                    'userList' => $this->userModel->userAll(),
+                    'roleList' => $this->taskModel->getAll('Permissions'),
+                    'performerID' => $performerID,
+                    'deadlinePerformer' => $deadlinePerformer,
+                    'reviewerID' => $reviewerID,
+                    'deadlineReviewer' => $deadlineReviewer,
+                    'documentList' => $this->taskModel->getDocumentByTaskID($idTask),
+                    'commentList' => $this->taskModel->getCommentByTaskID($idTask),
+                    'progress' => $progress,
+                ]
+            );
             exit;
         } else {
             $this->view('errors.404');
@@ -475,13 +440,14 @@ class TaskController extends BaseController
                 $documentList = "";
                 foreach ($document as $value) {
                     $documentList .= '<li class="list-group-item list-group-item-action border-0 d-flex align-items-center justify-content-between mb-2 rounded-3">
-                                <span class="file-name fw-medium">
-                                    <span data-value="' . sha1($value["DocumentID"]) . '" class="link-file text-primary text-decoration-underline me-2">' . $value["FileName"] . '</span>
-                                    <span class="text-secondary fw-normal">(' . $value["FileSize"] . ')</span>
-                                </span>
-                                <button class="remove-file-btn btn btn-white border-0"><i class="bi bi-x-lg"></i></button>
-                            </li>';
+                            <span class="file-name fw-medium">
+                                <span data-value="' . sha1($value["DocumentID"]) . '" class="link-file text-primary text-decoration-underline me-2">' . $value["FileName"] . '</span>
+                                <span class="text-secondary fw-normal">(' . $value["FileSize"] . ')</span>
+                            </span>
+                            <button class="remove-file-btn btn btn-white border-0"><i class="bi bi-x-lg"></i></button>
+                        </li>';
                 }
+
                 echo json_encode(array("type" => "success", "documentList" => $documentList));
             } else {
                 echo json_encode(array("type" => "fail"));
@@ -605,10 +571,9 @@ class TaskController extends BaseController
                     </div>
                 </li>';
                 }
-
-                echo $commentList;
+                echo json_encode(array("type" => "success", "commentList" => $commentList));
             } else {
-                echo 'fail';
+                echo json_encode(array("type" => "fail"));
             }
             exit();
         } else {
@@ -661,9 +626,9 @@ class TaskController extends BaseController
                 </li>';
                 }
 
-                echo $commentList;
+                echo json_encode(array("type" => "success", "commentList" => $commentList));
             } else {
-                echo "fail";
+                echo json_encode(array("type" => "fail"));
             }
             exit();
         } else {
@@ -703,7 +668,12 @@ class TaskController extends BaseController
     {
         if (isset($_POST["taskID"])) {
             if ($this->taskModel->recallTask($_POST["taskID"], $_POST["taskReview"])) {
-                $user = $this->taskModel->getUserByID($_POST['taskReview']);
+                if ($_POST["taskReview"] > 0) {
+                    $user = $this->taskModel->getUserByID($_POST['taskReview']);
+                } else {
+                    $task = $this->taskModel->viewTask($_POST["taskID"]);
+                    $user = $this->taskModel->getUserByID($task[0]["AssignedBy"]);
+                }
                 $htmlContent = file_get_contents(getWebRoot() . '/Views/emailTemplate/recallTask.html');
                 $htmlContent = str_replace('{{nameTask}}', $_POST["name"], $htmlContent);
 
@@ -716,6 +686,54 @@ class TaskController extends BaseController
                 echo "fail";
             }
             exit();
+        } else {
+            $this->view('errors.404');
+        }
+    }
+
+
+    public function refuseTask()
+    {
+        if (isset($_POST["taskID"])) {
+            if ($this->taskModel->refuseTask($_POST["taskID"], $_POST["taskPerformers"], $_POST["content"])) {
+                $user = $this->taskModel->getUserByID($_POST['taskPerformers']);
+                $htmlContent = file_get_contents(getWebRoot() . '/Views/emailTemplate/refuseTask.html');
+                $htmlContent = str_replace('{{title}}', "Từ chối thẩm định", $htmlContent);
+                $htmlContent = str_replace('{{nameTask}}', $_POST["name"], $htmlContent);
+                $htmlContent = str_replace('{{comment}}', nl2br($_POST["content"]) . "\n\n", $htmlContent);
+
+                if (sendMail($user[0]["Gmail"], "Từ chối thẩm định", $htmlContent)) {
+                    echo "success";
+                } else {
+                    echo "fail";
+                }
+            } else {
+                echo "fail";
+            }
+            exit();
+        } else {
+            $this->view('errors.404');
+        }
+    }
+
+    public function signatureBlockTask()
+    {
+        if (isset($_POST["taskID"])) {
+            if ($this->taskModel->signatureBlockTask($_POST["taskID"], $_POST["taskPerformers"], $_POST["content"], $_POST["progress"])) {
+                date_default_timezone_set('Asia/Ho_Chi_Minh');
+                $currentDate = date('d-m-Y');
+                $user = $this->taskModel->getUserByID($_POST['taskPerformers']);
+                $htmlContent = file_get_contents(getWebRoot() . '/Views/emailTemplate/approveTask.html');
+                $htmlContent = str_replace('{{nameTask}}', $_POST['name'], $htmlContent);
+                $htmlContent = str_replace('{{nameSend}}', $_SESSION["UserInfo"][0]["FullName"], $htmlContent);
+                $htmlContent = str_replace('{{dateSend}}', $currentDate, $htmlContent);
+
+                if (sendMail($user[0]["Gmail"], "Công việc ngày " . $currentDate, $htmlContent)) {
+                    echo "success";
+                } else {
+                    echo "fail";
+                }
+            }
         } else {
             $this->view('errors.404');
         }

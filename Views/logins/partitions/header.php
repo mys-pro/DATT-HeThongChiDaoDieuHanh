@@ -1,9 +1,3 @@
-<?php
-if (isset($_SESSION["UserInfo"])) {
-    header("Location:" . getWebRoot() . "/ac/cong-viec");
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 

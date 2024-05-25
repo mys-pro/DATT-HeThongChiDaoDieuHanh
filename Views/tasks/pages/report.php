@@ -29,7 +29,7 @@
                     </div>
                 </li>
             </ul>
-            <button id="btn-filter-statistical" type="button" class="btn btn-primary btn-filter m-2">Áp dụng</button>
+            <button id="btn-filter-report" type="button" class="btn btn-primary btn-filter m-2">Áp dụng</button>
             <button title="Xuất file" id="Export-report" type="button" class="btn btn-secondary m-2 ms-0">
                 <i class="bi bi-box-arrow-up-right"></i>
             </button>
@@ -42,7 +42,7 @@
                 <thead>
                     <tr>
                         <th class="text-center" scope="col">STT</th>
-                        <th class="text-center" scope="col">Tên công việc</th>
+                        <th class="text-start" scope="col" style="width: 220px">Tên công việc</th>
                         <th class="text-center" scope="col">Đơn vị thực hiện</th>
                         <th class="text-center" scope="col">Thẩm định</th>
                         <th class="text-center" scope="col">Thời gian bắt đầu</th>
@@ -54,7 +54,7 @@
                     <?php foreach ($data['report'] as $index => $value) : ?>
                         <tr>
                             <td data-cell="STT" class="text-center"><?= $index + 1 ?></td>
-                            <td data-cell="Tên công việc" class="text-center"><?= $value['TaskName'] ?></td>
+                            <td data-cell="Tên công việc" class="text-start"><?= $value['TaskName'] ?></td>
                             <td data-cell="Đơn vị thực hiện" class="text-center"><?= $value['DepartmentName'] ?></td>
                             <td data-cell="Thẩm định" class="text-center"><?php if ($value['Reviewer'] == 1) echo "x" ?></td>
                             <td data-cell="Thời gian bắt đầu" class="text-center"><?= $value['DateCreated'] ?></td>
@@ -66,88 +66,4 @@
             </table>
         </div>
     </div>
-
-    <script>
-        $(document).ready(function() {
-            $('#date-filter').change(function() {
-                if ($(this).val() == 'DATE') {
-                    $('#date-item').removeClass('d-none');
-                } else {
-                    $('#date-item').addClass('d-none');
-                }
-            });
-
-            flatpickr("#date-input", {
-                dateFormat: "d-m-Y",
-                mode: "range"
-            });
-
-
-            var department = "";
-            var date = "YEAR";
-            var dateStart = 0;
-            var dateEnd = 0;
-            $('#btn-filter-statistical').click(function() {
-                department = $('#department-filter').val();
-                date = $('#date-filter').val();
-                var toDate = $('#date-input').val().split(" to ");
-                if ($('#date-input').val() != "") {
-                    if (toDate[0] != null) {
-                        var dateTemp = toDate[0].split("-");
-                        dateStart = dateTemp[2] + "-" + dateTemp[1] + "-" + dateTemp[0];
-                    }
-
-                    if (toDate[1] != null) {
-                        var dateTemp = toDate[1].split("-");
-                        dateEnd = dateTemp[2] + "-" + dateTemp[1] + "-" + dateTemp[0];
-                    }
-                }
-
-                $.ajax({
-                    url: '<?= getWebRoot() ?>/ac/bao-cao',
-                    method: 'POST',
-                    data: {
-                        department: department,
-                        date: date,
-                        dateStart: dateStart,
-                        dateEnd: dateEnd,
-                    },
-                    success: function(response) {
-                        var report = $(response).find("#table-data").html();
-                        $("#table-data").html(report);
-                    },
-                });
-            });
-
-            $('#Export-report').click(function() {
-                $.ajax({
-                    url: '<?= getWebRoot() ?>/PDF/report',
-                    method: 'POST',
-                    data: {
-                        department: department,
-                        date: date,
-                        dateStart: dateStart,
-                        dateEnd: dateEnd,
-                    },
-                    xhrFields: {
-                        responseType: 'blob'
-                    },
-                    success: function(response) {
-                        var blob = new Blob([response], {
-                            type: 'application/pdf'
-                        });
-                        var link = document.createElement('a');
-                        link.href = window.URL.createObjectURL(blob);
-                        link.download = 'BaoCao.pdf';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Lỗi khi gửi POST request:', error);
-                    }
-                });
-            });
-        });
-    </script>
 </div>

@@ -32,7 +32,7 @@
 
             <ul class="sidebar__dropdown collapse list-inline text-secondary <?= getDropdownItem($active, 'task') ?>" id="sidebarToggleExternalContent">
                 <li class="sidebar__dropdown-item mt-2">
-                    <a href="<?= getWebRoot() ?>/ac/cong-viec?v=tat-ca" class="text-secondary text-decoration-none rounded-3 d-block d-flex justify-content-between align-items-center <?php if(!isset($_REQUEST["v"]) || $_REQUEST["v"] == "tat-ca") echo "active" ?>">
+                    <a href="<?= getWebRoot() ?>/ac/cong-viec?v=tat-ca" class="text-secondary text-decoration-none rounded-3 d-block d-flex justify-content-between align-items-center <?php if(isset($_REQUEST["v"]) && $_REQUEST["v"] == "tat-ca") echo "active" ?>">
                         Tất cả
                     </a>
                 </li>

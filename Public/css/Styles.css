@@ -426,6 +426,10 @@
 #recall-task-btn {
     display: none;
 }
+
+#signature-block-task-btn {
+    display: none;
+}
 /*============================================= Date style =============================================*/
 .flatpickr-months .flatpickr-month {
     background-color: var(--primary-color) !important;
@@ -548,5 +552,18 @@
 
     #view-task-modal .modal-content {
         max-height: 100% !important;
+    }
+
+    #view-task-modal .modal-header-title {
+        display: block !important;
+    }
+
+    #view-task-modal #menu-kebab-task-view,
+    #view-task-modal button[aria-label="Close"] {
+        align-self: self-start;
+    }
+
+    #view-task-modal button[aria-label="Close"] {
+        margin-top: -3px;
     }
 }

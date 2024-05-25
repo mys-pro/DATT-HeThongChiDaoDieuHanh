@@ -41,11 +41,6 @@
 
 <script>
     $(document).ready(function() {
-        $('#logout').click(function() {
-            window.location.href = '<?= getWebRoot() ?>/Login/logout';
-        });
-
-
         <?php if(isset($_SESSION['Welcome']) && $_SESSION['Welcome'] === true): ?>
             var welcomeToast = $('#welcomeToast');
             var toastBootstrap = bootstrap.Toast.getOrCreateInstance(welcomeToast);

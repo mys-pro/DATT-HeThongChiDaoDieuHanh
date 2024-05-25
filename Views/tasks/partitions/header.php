@@ -1,11 +1,3 @@
-<?php
-if (!isset($_SESSION["UserInfo"])) {
-    header("Location:" . getWebRoot());
-} else {
-    $userInfo = $_SESSION["UserInfo"][0];
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -36,7 +28,7 @@ if (!isset($_SESSION["UserInfo"])) {
         <div id="welcomeToast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body">
-                    Xin chào, <?= $userInfo["FullName"] ?>
+                    Xin chào, <?= $_SESSION["UserInfo"][0]["FullName"] ?>
                 </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
@@ -90,18 +82,20 @@ if (!isset($_SESSION["UserInfo"])) {
                                             Công việc
                                         </a>
                                     </div>
-                                    <div class="col">
-                                        <a href="<?= getWebRoot() ?>/kb/quan-tri-he-thong" class="text-decoration-none text-secondary d-flex flex-column align-items-center px-1 py-2 rounded-3">
-                                            <img src="<?= getWebRoot() ?>/public/Image/admin-icon.png" alt="" width="36px" height="36px">
-                                            Hệ thống
-                                        </a>
-                                    </div>
+                                    <?php if (checkRole($_SESSION["Role"], 6)) : ?>
+                                        <div class="col">
+                                            <a href="<?= getWebRoot() ?>/kb/quan-tri-he-thong" class="text-decoration-none text-secondary d-flex flex-column align-items-center px-1 py-2 rounded-3">
+                                                <img src="<?= getWebRoot() ?>/public/Image/admin-icon.png" alt="" width="36px" height="36px">
+                                                Hệ thống
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </li>
 
                         <li class="header__navbar-item ms-2">
-                            <img class="header__navbar-avatar rounded-circle" src="data:image/jpeg;base64,<?= base64_encode($userInfo["Avatar"]) ?>" alt="" width="36px" height="36px">
+                            <img class="header__navbar-avatar rounded-circle" src="data:image/jpeg;base64,<?= base64_encode($_SESSION["UserInfo"][0]["Avatar"]) ?>" alt="" width="36px" height="36px">
                         </li>
                     </ul>
                 </div>

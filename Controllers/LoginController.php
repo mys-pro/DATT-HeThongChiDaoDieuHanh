@@ -4,6 +4,9 @@ class LoginController extends BaseController
     private $userModel;
     public function __construct()
     {
+        if (isset($_SESSION["UserInfo"])) {
+            header("Location:" . getWebRoot() . "/ac/cong-viec");
+        }
         $this->loadModel('UserModel');
         $this->userModel = new UserModel();
     }
