@@ -48,7 +48,7 @@
     </div>
 
     <div class="app bg-body-tertiary">
-        <nav class="navbar navbar-expand fixed-top">
+        <nav class="navbar admin navbar-expand fixed-top">
             <div class="container-xxl">
                 <a class="btn-offcanvas rounded-circle text-white d-flex justify-content-center align-items-center me-2" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
                     <i class="bi bi-list fs-5"></i>

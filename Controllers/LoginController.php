@@ -4,9 +4,6 @@ class LoginController extends BaseController
     private $userModel;
     public function __construct()
     {
-        if (isset($_SESSION["UserInfo"])) {
-            header("Location:" . getWebRoot() . "/ac/cong-viec");
-        }
         $this->loadModel('UserModel');
         $this->userModel = new UserModel();
     }
@@ -18,21 +15,28 @@ class LoginController extends BaseController
             $password = $_POST['password'];
             $login = $this->userModel->login($username);
             if (empty($login)) {
-                echo 'fail';
+                echo json_encode(["type" => "fail"]);
             } else {
                 if ($login[0]['Password'] == $password) {
                     $userInfo = $this->userModel->userInfo($login[0]['UserID']);
                     if ($userInfo[0]['Status'] == 0) {
-                        echo 'notActive';
+                        echo json_encode(["type" => "notActive"]);
                         exit();
                     } else {
                         $_SESSION['Welcome'] = true;
                         $_SESSION['UserInfo'] = $userInfo;
                         $_SESSION["Role"] = $this->userModel->getPermissions($userInfo[0]["UserID"]);
-                        echo 'success';
+                        echo json_encode([
+                            "type" => "success",
+                            "userID" => $_SESSION["UserInfo"][0]["UserID"],
+                            "role" => json_encode($_SESSION["Role"])
+                        ]);
+                        sendPusherEvent('direct_operator', 'info', array(
+                            'userID' => $userInfo[0]["UserID"]
+                        ));
                     }
                 } else {
-                    echo 'fail';
+                    echo json_encode(["type" => "fail"]);
                 }
             }
             exit();
@@ -115,10 +119,10 @@ class LoginController extends BaseController
             exit;
         }
 
-        if(isset($_POST["verify"])) {
-            if($forgotToken == $_POST["verify"]) {
+        if (isset($_POST["verify"])) {
+            if ($forgotToken == $_POST["verify"]) {
                 $countSecond = $this->countSecond($time);
-                if($countSecond >= 300) {
+                if ($countSecond >= 300) {
                     echo 'overTime';
                 } else {
                     echo $id;
@@ -152,8 +156,8 @@ class LoginController extends BaseController
             exit;
         }
 
-        if(isset($_POST['updatePassword'])) {
-            if($this->userModel->updatePassword($UserID, $_POST['updatePassword']) == 1) {
+        if (isset($_POST['updatePassword'])) {
+            if ($this->userModel->updatePassword($UserID, $_POST['updatePassword']) == 1) {
                 echo "success";
             } else {
                 echo "fail";
@@ -161,5 +165,46 @@ class LoginController extends BaseController
             exit;
         }
         $this->view('logins.index', ['page' => 'logins.pages.changePassword']);
+    }
+
+    public function activeAccount()
+    {
+        if (isset($_REQUEST["active"])) {
+            $id = $this->userModel->getIDbySha1($_REQUEST["active"]);
+            if ($id == NULL) {
+                header("Location:" . getWebRoot());
+            }
+
+            $userInfo = $this->userModel->userInfo($id);
+
+            if ($userInfo[0]["Status"] == 1) {
+                header("Location:" . getWebRoot());
+            }
+
+            if (isset($_POST["password"])) {
+                if ($this->userModel->createPassword($id, $_POST["password"])) {
+                    echo 'success';
+                    sendPusherEvent(
+                        'direct_operator',
+                        'admin-update',
+                        array(
+                            'type' => 'user',
+                        )
+                    );
+                } else {
+                    echo 'fail';
+                }
+                exit();
+            }
+
+            $this->view('logins.index', [
+                'page' => 'logins.pages.activeAccount',
+                'data' => [
+                    'account' => $userInfo[0]["Gmail"],
+                ],
+            ]);
+        } else {
+            $this->view('errors.404');
+        }
     }
 }

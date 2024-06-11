@@ -57,7 +57,7 @@
                             <td data-cell="Tên công việc" class="text-start"><?= $value['TaskName'] ?></td>
                             <td data-cell="Đơn vị thực hiện" class="text-center"><?= $value['DepartmentName'] ?></td>
                             <td data-cell="Thẩm định" class="text-center"><?php if ($value['Reviewer'] == 1) echo "x" ?></td>
-                            <td data-cell="Thời gian bắt đầu" class="text-center"><?= $value['DateCreated'] ?></td>
+                            <td data-cell="Thời gian bắt đầu" class="text-center"><?= $value['DateStart'] ?></td>
                             <td data-cell="Thời gian dự kiến" class="text-center"><?= $value['ExpectedDate'] ?></td>
                             <td data-cell="Trạng thái" class="text-center"><?= $value['Status'] ?></td>
                         </tr>

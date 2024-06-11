@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Thư thu hồi công việc</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,15 +23,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2>Phê duyệt công việc</h2>
+            <h2>{{title}}</h2>
         </div>
         <div class="content">
             <p>Xin chào,</p>
-            <p>Bạn có một công việc cần phê duyệt:</p>
+            <p>{{content}}</p>
             <p><strong>Tên Công Việc:</strong> {{nameTask}}</p>
             <p><strong>Người Gửi:</strong> {{nameSend}}</p>
             <p><strong>Ngày Gửi:</strong> {{dateSend}}</p>
-            <p>Vui lòng xem xét và phê duyệt công việc này.</p>
             <p>Trân trọng</p>
         </div>
     </div>

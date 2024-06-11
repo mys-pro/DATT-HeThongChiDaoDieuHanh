@@ -14,13 +14,13 @@ class UserModel extends BaseModel
 
     public function userInfo($id)
     {
-        $sql = "SELECT u.*, p.PositionName, d.DepartmentName FROM Users u JOIN Positions p ON u.PositionID = p.PositionID LEFT JOIN Departments d ON u.DepartmentID = d.DepartmentID WHERE UserID = ${id}";
+        $sql = "SELECT u.*, p.PositionName, d.DepartmentName FROM Users u LEFT JOIN Positions p ON u.PositionID = p.PositionID LEFT JOIN Departments d ON u.DepartmentID = d.DepartmentID WHERE UserID = ${id}";
         return $this->getData($sql);
     }
 
     public function userAll()
     {
-        $sql = "SELECT u.*, p.PositionName, d.DepartmentName FROM Users u JOIN Positions p ON u.PositionID = p.PositionID LEFT JOIN Departments d ON u.DepartmentID = d.DepartmentID";
+        $sql = "SELECT u.*, p.PositionName, d.DepartmentName FROM Users u LEFT JOIN Positions p ON u.PositionID = p.PositionID LEFT JOIN Departments d ON u.DepartmentID = d.DepartmentID";
         return $this->getData($sql);
     }
 
@@ -44,6 +44,12 @@ class UserModel extends BaseModel
     public function updatePassword($id, $password)
     {
         $sql = "UPDATE Users SET Password = '${password}', ForgotToken = NULL WHERE UserID = ${id}";
+        return $this->_query($sql);
+    }
+
+    public function createPassword($id, $password)
+    {
+        $sql = "UPDATE Users SET `Password` = '${password}', Status = '1' WHERE UserID = ${id}";
         return $this->_query($sql);
     }
 

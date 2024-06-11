@@ -13,45 +13,4 @@
     </div>
     <button id="send-mail" type="button" class="btn btn-primary btn-submit w-100 mb-3">Lấy lại mật khẩu</button>
     <a href="<?= getWebRoot() ?>/dang-nhap" class="w-100 text-center d-inline-block text-decoration-none">Quay lại đăng nhập</a>
-
-    <script>
-        $(document).ready(function() {
-            $('#InputEmail').keypress(function(event) {
-                if (event.which === 13) {
-                    $('.btn-submit').click();
-                }
-            });
-
-            $('.btn-submit').click(function() {
-                var email = $("#InputEmail").val();
-                if (email != '') {
-                    var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (emailPattern.test(email)) {
-                        $('.modal-loading').removeClass('d-none');
-                        $.ajax({
-                            url: '<?= getWebRoot() ?>/quen-mat-khau',
-                            method: 'POST',
-                            data: {
-                                email: email,
-                            },
-                            success: function(response) {
-                                if (response == 'wrong') {
-                                    $('.wrong-account').text('Email không tồn tại trong hệ thống.');
-                                } else if (response == 'fail') {
-                                    $('.wrong-account').text('Lỗi hệ thống, vui lòng thử lại sau.');
-                                } else {
-                                    $('.wrong-account').text('');
-                                    window.location.href = "<?= getWebRoot() ?>/ma-xac-nhan/" + response;
-                                }
-                            },
-                        });
-                    } else {
-                        $(".wrong-account").text("Định dạng email không hợp lệ.");
-                    }
-                } else {
-                    $(".wrong-account").text("Vui lòng nhập email.");
-                }
-            });
-        });
-    </script>
 </div>

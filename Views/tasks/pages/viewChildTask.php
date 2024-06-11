@@ -80,7 +80,7 @@
                     <?php foreach ($departmentList as $department) : ?>
                         <optgroup label="<?= $department["DepartmentName"] ?>">
                             <?php foreach ($userList as $user) : ?>
-                                <?php if ($user["DepartmentID"] == $department["DepartmentID"]) : ?>
+                                <?php if ($user["DepartmentID"] == $department["DepartmentID"] && $department["DepartmentID"] == $_SESSION["UserInfo"][0]["DepartmentID"]) : ?>
                                     <option value="<?= $user["UserID"] ?>" data-title="<?= $user["FullName"] ?>" data-role="<?= $user["PositionName"] ?>" data-company="<?= $user["DepartmentName"]  ?>" data-avatar="data:image/jpeg;base64,<?= base64_encode($user["Avatar"]) ?>" <?= $performerID == $user["UserID"] ? "selected" : "" ?>>
                                         <?= $user["FullName"] ?>
                                     </option>
@@ -93,35 +93,6 @@
                 <div class="d-flex align-items-center mb-2">
                     <label for="deadline-TaskPerformers" class="text-nowrap">Thời gian: </label>
                     <input type="number" class="deadline-input form-control rounded-0 p-0 ps-2 mx-2 bg-transparent" min="1" value="<?= $deadlinePerformer ?>" id="deadline-TaskPerformers" <?= $assignedBy == $_SESSION["UserInfo"][0]["UserID"] && stripos($status, "Hoàn thành") === false && $view == 'task' ? "" : "disabled" ?>>
-                    <span>ngày</span>
-                </div>
-            </div>
-
-            <label class="fw-semibold ms-1 mb-1"><i class="bi bi-person-fill-check me-2 text-secondary"></i>Người thẩm định <span class="text-danger">*</span></label>
-            <div id="reviewer" class="d-flex flex-wrap align-items-center justify-content-between mb-2">
-                <select name="" id="TaskReview" class="border-0  mb-2" <?= $status === "Dự thảo" ? "" : "disabled" ?>>
-                    <option value="null" data-title="Chọn người thẩm định" data-icon="bi-person-fill-check" disabled hidden <?= $reviewerID == null ? "selected" : "" ?>>Chọn người thẩm định</option>
-                    <?php foreach ($departmentList as $department) : ?>
-                        <optgroup label="<?= $department["DepartmentName"] ?>">
-                            <?php foreach ($userList as $user) : ?>
-                                <?php if ($user["DepartmentID"] == $department["DepartmentID"]) : ?>
-                                    <?php foreach ($roleList as $role) : ?>
-                                        <?php if ($role['RoleID'] == 5 && $role["UserID"] ==  $user["UserID"]) : ?>
-                                            <option value="<?= $user["UserID"] ?>" data-title="<?= $user["FullName"] ?>" data-role="<?= $user["PositionName"] ?>" data-company="<?= $user["DepartmentName"]  ?>" data-avatar="data:image/jpeg;base64,<?= base64_encode($user["Avatar"]) ?>" <?= $reviewerID == $user["UserID"] ? "selected" : "" ?>>
-                                                <?= $user["FullName"] ?>
-                                            </option>
-                                        <?php break;
-                                        endif; ?>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
-                        </optgroup>
-                    <?php endforeach; ?>
-                </select>
-
-                <div class="d-flex align-items-center mb-2">
-                    <label for="deadline-TaskReview" class="text-nowrap">Thời gian: </label>
-                    <input type="number" class="deadline-input form-control rounded-0 p-0 ps-2 mx-2 bg-transparent" min="1" value="<?= $deadlineReviewer ?>" id="deadline-TaskReview" <?= $assignedBy == $_SESSION["UserInfo"][0]["UserID"] && stripos($status, "Hoàn thành") === false && $view == 'task' ? "" : "disabled" ?>>
                     <span>ngày</span>
                 </div>
             </div>
@@ -218,27 +189,23 @@
 
                 <div class="ms-auto footer-action">
                     <?php if (($reviewerID == $_SESSION["UserInfo"][0]["UserID"] || $assignedBy == $_SESSION["UserInfo"][0]["UserID"] && $view == "signature") && stripos($status, "Hoàn thành") === false && $status !== "Chờ duyệt") : ?>
-                        <button id="refuse-task-btn" type="button" class="btn border-0 text-danger"><i class="bi bi-clipboard2-x me-2"></i>Từ chối</button>
+                        <button id="refuse-child-task-btn" type="button" class="btn border-0 text-danger"><i class="bi bi-clipboard2-x me-2"></i>Từ chối</button>
                     <?php endif; ?>
                     <?php if ($assignedBy != $_SESSION["UserInfo"][0]["UserID"] && $status == "Chờ duyệt") : ?>
-                        <button id="recall-task-btn" type="button" class="btn border-0 text-primary"><i class="bi bi-arrow-counterclockwise me-2"></i>Thu hồi</button>
+                        <button id="recall-child-task-btn" type="button" class="btn border-0 text-primary"><i class="bi bi-arrow-counterclockwise me-2"></i>Thu hồi</button>
                     <?php endif; ?>
 
-                    <?php if (stripos($status, "Hoàn thành") === false && $status != "Chờ duyệt") : ?>
-                        <?php if (checkRole($_SESSION["Role"], 5) && $reviewerID == $_SESSION["UserInfo"][0]["UserID"]) : ?>
-                            <button id="send-signature-btn" type="button" class="btn btn-success <?= $progress == 100 ? "" : "d-none" ?>"><i class="bi bi-send me-2"></i>Trình ký</button>
-                        <?php elseif (!checkRole($_SESSION["Role"], 5) && $performerID == $_SESSION["UserInfo"][0]["UserID"]) : ?>
-                            <button id="appraisal-task-btn" type="button" class="btn btn-success <?= $progress == 100 ? "" : "d-none" ?>"><i class="bi bi-send me-2"></i>Gửi thẩm định</button>
-                        <?php endif; ?>
+                    <?php if ($assignedBy != $_SESSION["UserInfo"][0]["UserID"] && stripos($status, "Hoàn thành") === false && $status != "Chờ duyệt") : ?>
+                        <button id="send-signature-child-btn" type="button" class="btn btn-success <?= $progress == 100 ? "" : "d-none" ?>"><i class="bi bi-send me-2"></i>Gửi duyệt</button>
                     <?php endif; ?>
                     <?php if ($status != "Dự thảo" && $view == 'task') : ?>
-                        <button id="save-task-btn" type="button" class="btn btn-primary"><i class="bi bi-floppy2 me-2"></i>Lưu</button>
+                        <button id="save-child-task-btn" type="button" class="btn btn-primary"><i class="bi bi-floppy2 me-2"></i>Lưu</button>
                     <?php endif; ?>
                     <?php if (!checkRole($_SESSION["Role"], 3) && $status == "Dự thảo") : ?>
-                        <button id="send-task-btn" type="button" class="btn btn-primary"><i class="bi bi-send me-2"></i>Gửi</button>
+                        <button id="send-child-task-btn" type="button" class="btn btn-primary"><i class="bi bi-send me-2"></i>Gửi</button>
                     <?php endif; ?>
-                    <?php if (checkRole($_SESSION["Role"], 4) && $view == "signature") : ?>
-                        <button id="signature-btn" type="button" class="btn btn-success"><i class="bi bi-clipboard2-check me-2"></i>Duyệt</button>
+                    <?php if ($_SESSION["UserInfo"][0]["PositionID"] != 5 && $view == "signature") : ?>
+                        <button id="signature-child-btn" type="button" class="btn btn-success"><i class="bi bi-clipboard2-check me-2"></i>Duyệt</button>
                     <?php endif; ?>
                 </div>
             </div>

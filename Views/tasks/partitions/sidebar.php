@@ -14,7 +14,7 @@
         </li>
         <?php endif; ?>
 
-        <?php if(checkRole($_SESSION["Role"], 4) || checkRole($_SESSION["Role"], 6) || checkRole($_SESSION["Role"], 7)):?>
+        <?php if(checkRole($_SESSION["Role"], 4) || checkRole($_SESSION["Role"], 6)):?>
         <li class="sidebar__content-item mb-2">
             <a href="<?= getWebRoot() ?>/ac/bao-cao" class="rounded-3 text-decoration-none text-secondary d-block <?= getActiveMenu($active, 'report') ?>">
                 <i class="bi bi-file-text me-3"></i>
@@ -64,9 +64,9 @@
             </ul>
         </li>
 
-        <?php if(checkRole($_SESSION["Role"], 4)):?>
+        <?php if(!checkRole($_SESSION["Role"], 3)):?>
         <li class="sidebar__content-item mb-2">
-            <a href="" class="rounded-3 text-decoration-none text-secondary d-block">
+            <a href="<?= getWebRoot() ?>/ac/xet-duyet" class="rounded-3 text-decoration-none text-secondary d-block <?= getActiveMenu($active, 'signature') ?>">
                 <i class="bi bi-folder-check me-3"></i>
                 <span>Xét duyệt</span>
             </a>

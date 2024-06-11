@@ -1,8 +1,4 @@
 <?php
-include './library/PHPMailer/src/PHPMailer.php';
-include './library/PHPMailer/src/Exception.php';
-include './library/PHPMailer/src/SMTP.php';
-
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -17,6 +13,9 @@ function getWebRoot()
     $doc_root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
     $current_dir = str_replace($doc_root, '', str_replace('\\', '/', dirname(__DIR__)));
     $folder = ($current_dir === '/' ? '' : $current_dir);
+    if (!empty($folder) && $folder[0] !== '/') {
+        $folder = '/' . $folder;
+    }
     return $web_root . $folder;
 }
 
@@ -107,4 +106,19 @@ function checkRole($listRole = [], $role) {
         }
     }
     return false;
+}
+
+function sendPusherEvent($channel, $event, $data) {
+    $options = array(
+        'cluster' => 'ap1',
+        'useTLS' => true
+    );
+    $pusher = new Pusher\Pusher(
+        '6cb0dc56f5ed27c15171',
+        'c460faf87f477aad2e0a',
+        '1808591',
+        $options
+    );
+
+    $pusher->trigger($channel, $event, $data);
 }

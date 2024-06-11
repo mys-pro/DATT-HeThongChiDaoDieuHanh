@@ -1,5 +1,4 @@
 <?php
-include "./library/TCPDF/tcpdf.php";
 class PDFController extends BaseController
 {
     private $pdf;
