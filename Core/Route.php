@@ -17,3 +17,6 @@ $route['kb/co-cau-to-chuc'] = 'admin/department';
 $route['kb/phong-ban'] = 'admin/department';
 $route['kb/chuc-vu'] = 'admin/position';
 $route['kb/nguoi-dung'] = 'admin/user';
+
+
+$route['thiet-lap/thong-tin-ca-nhan'] = 'setting/userInfo';

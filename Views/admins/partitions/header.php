@@ -64,7 +64,7 @@
 
                 <div class="navbar-right ms-auto flex-grow-0">
                     <ul class="navbar-nav p-0 m-0 flex-row align-items-center">
-                        <li class="nav-item"><a class="nav-link rounded-circle text-white d-flex justify-content-center align-items-center" href="#"><i class="bi bi-gear fs-5"></i></a></li>
+                        <li class="nav-item"><a class="nav-link rounded-circle text-white d-flex justify-content-center align-items-center" href="<?= getWebRoot() . "/thiet-lap/thong-tin-ca-nhan" ?>"><i class="bi bi-gear fs-5"></i></a></li>
 
                         <li id="dropdown-notify" class="nav-item dropdown ms-2">
                             <a id="dropdown-notify-btn" class="nav-link dropdown-toggle rounded-circle text-white d-flex justify-content-center align-items-center" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">

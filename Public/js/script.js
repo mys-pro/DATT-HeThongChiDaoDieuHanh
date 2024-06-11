@@ -286,7 +286,7 @@ $(document).ready(function () {
             }
 
             case 'delete-user': {
-                if(data.userID == userID) {
+                if (data.userID == userID) {
                     sessionStorage.clear();
                     window.location.href = baseURL + "/login/logout";
                 } else {
@@ -299,6 +299,22 @@ $(document).ready(function () {
                         }
                     });
                 }
+                break;
+            }
+        }
+    });
+
+    channel.bind('setting-update', function (data) {
+        switch (data.type) {
+            case 'userInfo': {
+                $.ajax({
+                    url: window.location.href,
+                    method: 'POST',
+                    success: function (response) {
+                        var content = $(response).find("#user-avatar").html();
+                        $("#user-avatar").html(content);
+                    }
+                });
                 break;
             }
         }
@@ -440,6 +456,19 @@ $(document).ready(function () {
     }
 
     //============================================= Login =============================================//
+    $('.btn-eye-old').click(function () {
+        var password = $('#InputPasswordOld');
+        if (password.attr("type") == "password") {
+            password.attr('type', 'text');
+            $('#eye-old').removeClass('bi-eye-slash');
+            $('#eye-old').addClass('bi-eye');
+        } else {
+            password.attr('type', 'password');
+            $('#eye-old').removeClass('bi-eye');
+            $('#eye-old').addClass('bi-eye-slash');
+        }
+    });
+
     $('.btn-eye').click(function () {
         var password = $('#InputPassword1');
         if (password.attr("type") == "password") {
@@ -2582,7 +2611,7 @@ $(document).ready(function () {
             showToast($("#toast-notify-content"), 'warning', 'Vui lòng nhập gmail.');
         } else if (!emailPattern.test(gmail)) {
             showToast($("#toast-notify-content"), 'warning', 'Định dang gmail không hợp lệ.');
-        } else if(role == null) {
+        } else if (role == null) {
             showToast($("#toast-notify-content"), 'warning', 'Vui lòng chọn quyền.');
         } else {
             $('#modal-loading').removeClass("d-none");
@@ -2598,7 +2627,7 @@ $(document).ready(function () {
                     "roles": roles
                 },
                 success: function (response) {
-                    if(response == 'gmail-exist') {
+                    if (response == 'gmail-exist') {
                         showToast($("#toast-notify-content"), 'warning', 'Gmail đã tồn tại trong hệ thống.');
                         $('#modal-loading').addClass("d-none");
                     } else if (response == "success") {
@@ -2750,4 +2779,95 @@ $(document).ready(function () {
             }
         });
     }
+
+    //===================================setting===================================================
+    // update avatar
+    container.on('change', '#avatar', function () {
+        var fileInput = $(this)[0];
+        var avatar = fileInput.files[0];
+        var formData = new FormData();
+        formData.append('avatar', avatar);
+        $.ajax({
+            type: "POST",
+            url: baseURL + "/Setting/updateAvatar",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                console.log(response);
+                if (response == "success") {
+                    showToast($("#toast-notify-content"), 'success', 'Cập nhật ảnh đại diện thành công.');
+                } else if (response == "fail") {
+                    showToast($("#toast-notify-content"), 'danger', 'Cập nhật ảnh đại diện thất bại.');
+                } else {
+                    showToast($("#toast-notify-content"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                }
+            },
+
+            error: function () {
+                showToast($("#toast-notify-content"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+            }
+        });
+    });
+
+    // change pass
+    container.on('click', '#change-password-btn', function (e) {
+        e.preventDefault();
+        $('#change-password-modal').modal('show');
+        $('#change-password-submit').click(function () {
+            var oldPass = $('#InputPasswordOld').val();
+            var newPass = $('#InputPassword1').val();
+            var confirmPass = $('#InputPassword2').val();
+            var valid = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+])[0-9a-zA-Z!@#$%^&*()_+]{8,}$/;
+            if (oldPass.trim() == "") {
+                showToast($("#toast-notify-content"), 'warning', 'Vui lòng nhập mật khẩu cũ');
+            } else if (newPass.trim() == "") {
+                showToast($("#toast-notify-content"), 'warning', 'Vui lòng nhập mật khẩu mới');
+            } else if (!valid.test(newPass.trim())) {
+                showToast($("#toast-notify-content"), 'warning', 'Mật khẩu phải có ít nhất 8 ký tự bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.');
+            } else if (newPass.trim() != confirmPass.trim()) {
+                showToast($("#toast-notify-content"), 'warning', 'Mật khẩu không trùng khớp');
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: baseURL + "/Setting/changePassword",
+                    data: {
+                        oldPass: oldPass,
+                        newPass: newPass
+                    },
+                    success: function (response) {
+                        if(response == 'oldPassError') {
+                            showToast($("#toast-notify-content"), 'warning', 'Mật khẩu cũ không đúng');
+                        } else if (response == "success") {
+                            showToast($("#toast-notify-content"), 'success', 'Đổi mật khẩu thành công.');
+                            $('#change-password-modal').modal('hide');
+                        } else if (response == "fail") {
+                            showToast($("#toast-notify-content"), 'danger', 'Đổi mật khẩu thất bại.');
+                        } else {
+                            showToast($("#toast-notify-content"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                        }
+                    },
+                    error: function () {
+                        showToast($("#toast-notify-content"), 'danger', 'Lỗi hệ thống vui lòng thử lại sau.');
+                    }
+                });
+            }
+        })
+    });
+
+    container.on('hidden.bs.modal', '#change-password-modal', function () {
+        $('#InputPasswordOld').val('');
+        $('#InputPassword1').val('');
+        $('#InputPassword2').val('');
+        $('#InputPasswordOld').attr('type', 'password');
+        $('#InputPassword1').attr('type', 'password');
+        $('#InputPassword2').attr('type', 'password');
+        $('#eye-old').removeClass('bi-eye');
+        $('#eye-old').addClass('bi-eye-slash');
+        $('#eye').removeClass('bi-eye');
+        $('#eye').addClass('bi-eye-slash');
+        $('#eye2').removeClass('bi-eye');
+        $('#eye2').addClass('bi-eye-slash');
+    });
+
 });

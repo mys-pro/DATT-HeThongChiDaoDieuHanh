@@ -611,6 +611,22 @@ img {
     font-size: 12px;
 }
 
+#avatar-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+    bottom: 0;
+    left: 65%;
+}
+
+#avatar-btn i {
+    line-height: 28px;
+}
+
+.user-information {
+    width: 80%;
+}
+
 /*============================================= Footer =============================================*/
 .app__footer {
     background-color: var(--primary-color);
@@ -749,5 +765,14 @@ img {
     #view-task-modal #signature-block-task-btn,
     #view-task-modal #appraisal-task-btn {
         margin-bottom: .5rem;
+    }
+
+    #user-avatar {
+        display: flex;
+        justify-content: center;
+    }
+
+    .user-information {
+        width: 100%;
     }
 }
