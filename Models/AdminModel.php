@@ -100,7 +100,7 @@ class AdminModel extends BaseModel
             $department = empty($department) ? "NULL" : "'" . $department . "'";
 
             $avatar = addslashes(file_get_contents(getWebRoot() . "/Public/Image/avatar-default.jpg"));
-            $insert1 = $this->addData("Users", ["NULL", "'{$avatar}'", "'{$name}'", "'{$gmail}'", "NULL", "'{$phone}'", "'0'", "NULL", "{$position}", "{$department}"]);
+            $insert1 = $this->addData("Users", ["NULL", "'{$avatar}'", "'{$name}'", "'{$gmail}'", "NULL", "'{$phone}'", "'0'", "NULL", "current_timestamp()","{$position}", "{$department}"]);
             if ($insert1) {
                 $userID = $this->connect->insert_id;
                 foreach ($roles as $value) {

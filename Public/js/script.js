@@ -1119,7 +1119,7 @@ $(document).ready(function () {
 
     var descriptionEditor;
 
-    container.on('click', '#table-data[view="task"] > tbody > tr', function () {
+    container.on('click', '#table-data[view="task"] > tbody > tr, #table-data[view="signature"] > tbody > tr', function () {
         var id = $(this).attr('data-id');
         taskID = id;
         var view = $('#table-data').attr('view');
