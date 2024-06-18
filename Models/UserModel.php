@@ -37,7 +37,7 @@ class UserModel extends BaseModel
 
     public function updateForgotToken($id, $verify)
     {
-        $sql = "UPDATE Users SET ForgotToken = '${verify}' WHERE UserID = ${id}";
+        $sql = "UPDATE Users SET ForgotToken = '${verify}', DateUpdate = current_timestamp() WHERE UserID = ${id}";
         return $this->_query($sql);
     }
 
