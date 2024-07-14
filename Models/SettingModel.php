@@ -16,7 +16,7 @@ class SettingModel extends BaseModel
 
     public function userInfo($id)
     {
-        $sql = "SELECT u.*, p.PositionName, d.DepartmentName FROM Users u LEFT JOIN Positions p ON u.PositionID = p.PositionID LEFT JOIN Departments d ON u.DepartmentID = d.DepartmentID WHERE UserID = ${id}";
+        $sql = "SELECT u.*, p.PositionName, d.DepartmentName FROM Users u LEFT JOIN Positions p ON u.PositionID = p.PositionID LEFT JOIN Departments d ON u.DepartmentID = d.DepartmentID WHERE UserID = {$id}";
         return $this->getData($sql);
     }
 

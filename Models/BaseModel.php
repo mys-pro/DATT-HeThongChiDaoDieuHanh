@@ -10,15 +10,15 @@ class BaseModel extends Database {
         $orderByString = implode(' ', $orderBys);
         if($orderByString) {
             if($limit > -1) {
-                $sql = "SELECT ${columns} FROM ${table} ORDER BY ${orderByString} LIMIT ${limit}";
+                $sql = "SELECT {$columns} FROM {$table} ORDER BY {$orderByString} LIMIT {$limit}";
             } else {
-                $sql = "SELECT ${columns} FROM ${table} ORDER BY ${orderByString}";
+                $sql = "SELECT {$columns} FROM {$table} ORDER BY {$orderByString}";
             }
         } else {
             if($limit > 0) {
-                $sql = "SELECT ${columns} FROM ${table} LIMIT ${limit}";
+                $sql = "SELECT {$columns} FROM {$table} LIMIT {$limit}";
             } else {
-                $sql = "SELECT ${columns} FROM ${table}";
+                $sql = "SELECT {$columns} FROM {$table}";
             }
         }
         $query = $this->_query($sql);
@@ -44,7 +44,7 @@ class BaseModel extends Database {
 
     public function addData($table, $data = []) {
         $value = implode(", ", array_values($data));
-        $sql = "INSERT INTO ${table} VALUES (${value})";
+        $sql = "INSERT INTO {$table} VALUES ({$value})";
         return $this->_query($sql);
     }
 

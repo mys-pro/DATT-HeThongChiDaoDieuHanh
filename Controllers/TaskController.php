@@ -455,7 +455,7 @@ class TaskController extends BaseController
     {
         if (isset($_POST["taskName"])) {
             $taskName = $_POST["taskName"];
-            $insert = $this->taskModel->insertData("Tasks", ['NULL', "'${taskName}'", "''", "'1'", "'0'", "'Dự thảo'", 'NULL', "'2'", 'NULL', 'NULL', "'{$_SESSION["UserInfo"][0]["UserID"]}'"]);
+            $insert = $this->taskModel->insertData("Tasks", ['NULL', "'{$taskName}'", "''", "'1'", "'0'", "'Dự thảo'", 'NULL', "'2'", 'NULL', 'NULL', "'{$_SESSION["UserInfo"][0]["UserID"]}'"]);
             if ($insert) {
                 sendPusherEvent('direct_operator', 'update', array(
                     'taskID' => $insert,

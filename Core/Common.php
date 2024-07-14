@@ -99,7 +99,7 @@ function formatSizeUnits($bytes)
     return $bytes;
 }
 
-function checkRole($listRole = [], $role) {
+function checkRole($listRole, $role) {
     foreach($listRole as $value) {
         if($value["RoleID"] == $role) {
             return true;

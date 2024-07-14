@@ -33,16 +33,16 @@ class TaskModel extends BaseModel
 
             case "DATE": {
                     if ($dateStart != 0 && $dateEnd == 0) {
-                        $sql .= " AND tp.DateStart = '${dateStart}'";
+                        $sql .= " AND tp.DateStart = '{$dateStart}'";
                     } else if ($dateStart != 0 && $dateEnd != 0) {
-                        $sql .= " AND tp.DateStart BETWEEN '${dateStart}' AND '${dateEnd}'";
+                        $sql .= " AND tp.DateStart BETWEEN '{$dateStart}' AND '{$dateEnd}'";
                     }
                     break;
                 }
         }
 
         if ($priority != 0 && $priority != null) {
-            $sql .= " AND t.Priority = ${priority}";
+            $sql .= " AND t.Priority = {$priority}";
         }
 
         $sql .= " GROUP BY d.DepartmentID";
@@ -57,7 +57,7 @@ class TaskModel extends BaseModel
             FROM Tasks t JOIN TaskPerformers tp ON t.TaskID = tp.TaskID JOIN Users u ON tp.UserID = u.UserID JOIN Departments d ON u.DepartmentID = d.DepartmentID";
 
         if ($departmentID != 0 && $departmentID != null) {
-            array_push($where, "d.DepartmentID = ${departmentID}");
+            array_push($where, "d.DepartmentID = {$departmentID}");
         }
 
         switch ($date) {
@@ -73,9 +73,9 @@ class TaskModel extends BaseModel
 
             case "DATE": {
                     if ($dateStart != 0 && $dateEnd == 0) {
-                        array_push($where, "t.DateStart = '${dateStart}'");
+                        array_push($where, "t.DateStart = '{$dateStart}'");
                     } else if ($dateStart != 0 && $dateEnd != 0) {
-                        array_push($where, "t.DateStart BETWEEN '${dateStart}' AND '${dateEnd}'");
+                        array_push($where, "t.DateStart BETWEEN '{$dateStart}' AND '{$dateEnd}'");
                     }
                     break;
                 }
@@ -84,9 +84,9 @@ class TaskModel extends BaseModel
         if (!empty($where)) {
             foreach ($where as $index => $value) {
                 if ($index == 0) {
-                    $sql .= " WHERE ${value}";
+                    $sql .= " WHERE {$value}";
                 } else {
-                    $sql .= " AND ${value}";
+                    $sql .= " AND {$value}";
                 }
             }
         }
@@ -107,7 +107,7 @@ class TaskModel extends BaseModel
 
     public function getNotifyByID($id)
     {
-        $sql = "SELECT u.Avatar, u.FullName, n.* FROM Notifies n JOIN Users u ON n.UserBy = u.UserID WHERE n.UserID = ${id} ORDER BY n.Watched ASC, n.NotifyId DESC";
+        $sql = "SELECT u.Avatar, u.FullName, n.* FROM Notifies n JOIN Users u ON n.UserBy = u.UserID WHERE n.UserID = {$id} ORDER BY n.Watched ASC, n.NotifyId DESC";
 
         return $this->getData($sql);
     }
@@ -120,7 +120,7 @@ class TaskModel extends BaseModel
             ELSE Status 
         END AS StatusTask
         FROM Tasks
-        WHERE AssignedBy = ${id}";
+        WHERE AssignedBy = {$id}";
         return $this->getData($sql);
     }
 
@@ -132,7 +132,7 @@ class TaskModel extends BaseModel
             ELSE Status 
         END AS StatusTask
         FROM Tasks
-        WHERE TaskID = ${id}";
+        WHERE TaskID = {$id}";
         return $this->getData($sql);
     }
 
@@ -144,7 +144,7 @@ class TaskModel extends BaseModel
             ELSE Status 
         END AS StatusTask
         FROM Tasks
-        WHERE ParentTaskID = ${id}";
+        WHERE ParentTaskID = {$id}";
         return $this->getData($sql);
     }
 
@@ -157,7 +157,7 @@ class TaskModel extends BaseModel
         END AS StatusTask
         FROM Tasks WHERE ParentTaskID IS NULL";
         if ($name != null && $name != "") {
-            $sql .= " AND TaskName LIKE '%${name}%'";
+            $sql .= " AND TaskName LIKE '%{$name}%'";
         }
 
         return $this->getData($sql);
@@ -183,7 +183,7 @@ class TaskModel extends BaseModel
             ELSE tp.Status 
         END AS StatusPerformer
         FROM Tasks t JOIN TaskPerformers tp ON t.TaskID = tp.TaskID 
-        WHERE tp.TaskID = ${TaskID} AND UserID = ${UserID}";
+        WHERE tp.TaskID = {$TaskID} AND UserID = {$UserID}";
         return $this->getData($sql);
     }
 
@@ -198,9 +198,9 @@ class TaskModel extends BaseModel
         return $this->getData($sql);
     }
 
-    public function getTaskPerformersByReviewer($TaskID = 0, $Reviewer)
+    public function getTaskPerformersByReviewer($TaskID, $Reviewer)
     {
-        $sql = "SELECT * FROM TaskPerformers WHERE TaskID = ${TaskID} AND Reviewer = {$Reviewer}";
+        $sql = "SELECT * FROM TaskPerformers WHERE TaskID = {$TaskID} AND Reviewer = {$Reviewer}";
         return $this->getData($sql);
     }
 
@@ -217,50 +217,50 @@ class TaskModel extends BaseModel
 
     public function getUserByID($UserID = 0)
     {
-        $sql = "SELECT * FROM Users WHERE UserID = ${UserID}";
+        $sql = "SELECT * FROM Users WHERE UserID = {$UserID}";
         return $this->getData($sql);
     }
 
     public function getPositionByID($id = 0)
     {
-        $sql = "SELECT * FROM Positions WHERE PositionID = ${id}";
+        $sql = "SELECT * FROM Positions WHERE PositionID = {$id}";
         return $this->getData($sql);
     }
 
     public function getDepartmentByID($id)
     {
         $id = isset($id) ? $id : 0;
-        $sql = "SELECT * FROM Departments WHERE DepartmentID = ${id}";
+        $sql = "SELECT * FROM Departments WHERE DepartmentID = {$id}";
         return $this->getData($sql);
     }
 
     public function getDocumentByTaskID($id)
     {
-        $sql = "SELECT * FROM Documents WHERE TaskID = ${id} ORDER BY DocumentID desc";
+        $sql = "SELECT * FROM Documents WHERE TaskID = {$id} ORDER BY DocumentID desc";
         return $this->getData($sql);
     }
 
     public function getDocumentByID($id)
     {
-        $sql = "SELECT * FROM Documents WHERE DocumentID = ${id}";
+        $sql = "SELECT * FROM Documents WHERE DocumentID = {$id}";
         return $this->getData($sql);
     }
 
     public function updateNotify($id)
     {
-        $sql = "UPDATE Notifies SET Watched = 1 WHERE NotifyId = ${id}";
+        $sql = "UPDATE Notifies SET Watched = 1 WHERE NotifyId = {$id}";
         return $this->_query($sql);
     }
 
     public function deleteNotify($id)
     {
-        $sql = "DELETE FROM Notifies WHERE NotifyId = ${id}";
+        $sql = "DELETE FROM Notifies WHERE NotifyId = {$id}";
         return $this->_query($sql);
     }
 
     public function readNotify($id)
     {
-        $sql = "UPDATE Notifies SET Watched = 1 WHERE NotifyId = ${id}";
+        $sql = "UPDATE Notifies SET Watched = 1 WHERE NotifyId = {$id}";
         return $this->_query($sql);
     }
 
@@ -299,7 +299,7 @@ class TaskModel extends BaseModel
             ELSE tp.Status 
         END AS StatusTaskPerformers,
         tp.Comment 
-        FROM Tasks t JOIN Users u ON t.AssignedBy = u.UserID JOIN Positions p ON u.PositionID = p.PositionID LEFT JOIN Departments d ON u.DepartmentID = d.DepartmentID LEFT JOIN TaskPerformers tp ON t.TaskID = tp.TaskID WHERE t.TaskID = ${id}";
+        FROM Tasks t JOIN Users u ON t.AssignedBy = u.UserID JOIN Positions p ON u.PositionID = p.PositionID LEFT JOIN Departments d ON u.DepartmentID = d.DepartmentID LEFT JOIN TaskPerformers tp ON t.TaskID = tp.TaskID WHERE t.TaskID = {$id}";
         return $this->getData($sql);
     }
 
@@ -315,10 +315,10 @@ class TaskModel extends BaseModel
             $countChildTask = count($childTasks);
             $countTrue = 0;
 
-            $sql1 = "DELETE FROM TaskPerformers WHERE TaskID = ${id}";
-            $sql2 = "DELETE FROM Documents WHERE TaskID = ${id}";
-            $sql3 = "DELETE FROM Comments WHERE TaskID = ${id}";
-            $sql4 = "DELETE FROM Tasks WHERE TaskID = ${id}";
+            $sql1 = "DELETE FROM TaskPerformers WHERE TaskID = {$id}";
+            $sql2 = "DELETE FROM Documents WHERE TaskID = {$id}";
+            $sql3 = "DELETE FROM Comments WHERE TaskID = {$id}";
+            $sql4 = "DELETE FROM Tasks WHERE TaskID = {$id}";
 
             if ($idPerformers != NULL && $idReviewer != NULL) {
                 $notifyPerformers = $this->addData("Notifies", ["NULL", "'đã xóa công việc <span class=\"fw-semibold\">{$nameTask}</span>'", "'{$link}'", "'0'", "current_timestamp()", "'{$idPerformers}'", "'{$_SESSION["UserInfo"][0]["UserID"]}'"]);
