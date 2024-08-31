@@ -353,7 +353,7 @@ class TaskController extends BaseController
                 'pageTitle' => 'Công việc',
                 'taskList' => $taskList,
                 'subTask' => $subTaskList,
-                'departmentList' => $this->taskModel->getAll('departments'),
+                'departmentList' => $this->taskModel->getAll('Departments'),
                 'userList' => $this->userModel->userAll(),
                 'role' => $this->userModel->getAll("Permissions"),
             ],

@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    var baseURL = "";
+    var baseURL = document.location.protocol + "//" + document.location.hostname + ":8080";
     var userID = null;
 
     if (sessionStorage.getItem("UserID") && sessionStorage.getItem("Role")) {
@@ -540,6 +540,10 @@ $(document).ready(function () {
                         $('.wrong-account').text('Lỗi hệ thống vui lòng thử lại sau.');
                     }
                 },
+
+                error: function (error) {
+                    console.log(error);
+                }
             });
         }
     });

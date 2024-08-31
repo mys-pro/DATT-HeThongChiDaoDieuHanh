@@ -1,22 +1,24 @@
-services:
-  web:
-    build: .
-    volumes:
-      - .:/var/www/html
-    ports:
-      - "9000:80"
+version: '3.9'
 
+services:
   db:
     image: mysql:latest
-    restart: always
     environment:
       - MYSQL_DATABASE=direct_operator
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    # ports:
+    #  - 3307:3306
 
+  web:
+    build: .
+    volumes:
+      - ./:/var/www/html 
+    ports:
+      - '8080:80'
+  
   phpmyadmin:
     image: phpmyadmin:latest
-    restart: always
     ports:
-      - 9001:80
+      - 8888:80
     environment:
       - PMA_ARBITRARY=1
