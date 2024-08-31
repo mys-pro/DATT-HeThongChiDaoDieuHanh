@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    var baseURL = "/DATT-HeThongChiDaoDieuHanh";
+    var baseURL = "";
     var userID = null;
 
     if (sessionStorage.getItem("UserID") && sessionStorage.getItem("Role")) {

@@ -10,13 +10,13 @@ function getWebRoot()
         $web_root = 'http://' . $_SERVER['HTTP_HOST'];
     }
 
-    $doc_root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
-    $current_dir = str_replace($doc_root, '', str_replace('\\', '/', dirname(__DIR__)));
-    $folder = ($current_dir === '/' ? '' : $current_dir);
-    if (!empty($folder) && $folder[0] !== '/') {
-        $folder = '/' . $folder;
-    }
-    return $web_root . $folder;
+    // $doc_root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
+    // $current_dir = str_replace($doc_root, '', str_replace('\\', '/', dirname(__DIR__)));
+    // $folder = ($current_dir === '/' ? '' : $current_dir);
+    // if (!empty($folder) && $folder[0] !== '/') {
+    //     $folder = '/' . $folder;
+    // }
+    return $web_root;
 }
 
 const VIEW_FOLDER_NAME = 'Views';

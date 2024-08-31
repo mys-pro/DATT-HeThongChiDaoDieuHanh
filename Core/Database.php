@@ -1,6 +1,6 @@
 <?php
 class Database {
-    const HOST = "localhost";
+    const HOST = "db";
     const USERNAME = "root";
     const PASSWORD = "";
     const DB_NAME = "direct_operator";
